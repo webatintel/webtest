@@ -20,6 +20,7 @@ async function runWebXPRT2015Test(workload, flags) {
   const browser = await chromium.launchPersistentContext(userDataDir, {
     headless: false,
     executablePath: settings.chrome_path,
+    viewport: null,
     args: args
   });
   const page = await browser.newPage();

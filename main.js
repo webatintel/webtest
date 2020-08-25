@@ -70,7 +70,7 @@ async function main() {
       mailType = 'dev_notice'; // If the test is on AMD platform, then send dev team.
 
     // Pull all results to make sure getting latest results of competitors
-    await runTest.pullRemoteResults();
+    // await runTest.pullRemoteResults();
     const testReports = await genTestReport(workloadResults);
 
     console.log(subject);
@@ -90,7 +90,7 @@ async function main() {
   }
 
   // Update the browser version in config.json if necessary
-  await browser.updateConfig(deviceInfo, settings);
+  // await browser.updateConfig(deviceInfo, settings);
   await chart.cleanUpChartFiles();
 
 }

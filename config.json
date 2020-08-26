@@ -29,6 +29,30 @@
       "url": "http://user-awfy.sh.intel.com:8080/awfy/ARCworkloads/JetStream2-JSTC/",
       "run_times": 3,
       "sleep_interval": 300
+    },
+    {
+      "name": "Aquarium",
+      "url": "http://testserver1.sh.intel.com:7013/aquarium/aquarium.html?numFish=1000&startWait=10&runFor=300",
+      "run_times": 3,
+      "sleep_interval": 300
+    },
+    {
+      "name": "BaseMark",
+      "url": "http://user-awfy.sh.intel.com:8081/",
+      "run_times": 3,
+      "sleep_interval": 300
+    },
+    {
+      "name": "TensorFlow_Wasm",
+      "url": "http://user-awfy.sh.intel.com:8080/tensorflow/benchmarks/local-benchmark/",
+      "run_times": 3,
+      "sleep_interval": 300
+    },
+    {
+      "name": "TensorFlow_WebGL",
+      "url": "http://user-awfy.sh.intel.com:8080/tensorflow/benchmarks/local-benchmark/",
+      "run_times": 3,
+      "sleep_interval": 300
     }
   ],
   "win_chrome_path": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",

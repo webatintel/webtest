@@ -7,9 +7,11 @@ const runWebXPRT3 = require('./workloads/webxprt3.js');
 const runWebXPRT2015 = require('./workloads/webxprt2015.js');
 const runUnity3D = require('./workloads/unity3d.js');
 const runJetStream2 = require('./workloads/jetstream2.js');
+const runAquarium = require('./workloads/aquarium.js');
+const runBasemark = require('./workloads/basemark.js');
+const runTensorflow = require('./workloads/tensorflow.js');
 const settings = require('../config.json');
 const Client = require('ssh2-sftp-client');
-
 
 function getPlatformName() {
   let platform = os.platform();
@@ -226,7 +228,11 @@ async function genWorkloadsResults(deviceInfo) {
     'WebXPRT3': runWebXPRT3,
     'WebXPRT2015': runWebXPRT2015,
     'Unity3D': runUnity3D,
-    'JetStream2': runJetStream2
+    'JetStream2': runJetStream2,
+    'Aquarium': runAquarium,
+    'BaseMark': runBasemark,
+    'TensorFlow_Wasm': runTensorflow,
+    'TensorFlow_WebGL': runTensorflow
   };
   for (const workload of settings.workloads) {
     let executor = executors[workload.name];

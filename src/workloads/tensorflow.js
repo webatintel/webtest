@@ -57,7 +57,6 @@ async function runTensorflowTest(workload, flags) {
 
   const resultBody = await page.$('#timings > tbody');
   const resultLength = await resultBody.evaluate(element => element.rows.length);
-  console.log(resultLength);
   for (let i = 1; i < resultLength; i ++) {
     let typeSelector = `#timings > tbody > tr:nth-child(${i}) > td:nth-child(1)`;
     let valueSelector = `#timings > tbody > tr:nth-child(${i}) > td:nth-child(2)`;
@@ -80,4 +79,3 @@ async function runTensorflowTest(workload, flags) {
 }
 
 module.exports = runTensorflowTest;
-runTensorflowTest(settings.workloads[7]);

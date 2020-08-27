@@ -24,6 +24,7 @@ async function runTensorflowTest(workload, flags) {
   });
   const page = await browser.newPage();
   console.log(`********** Going to URL: ${workload.url} **********`);
+  browser.setDefaultNavigationTimeout( 3 * 60 * 1000 );
   await page.goto(workload.url, { waitUntil: "networkidle" });
   if (workload.name === "TensorFlow_WebGL") {
     const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');

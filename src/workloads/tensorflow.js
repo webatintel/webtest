@@ -20,6 +20,7 @@ async function runTensorflowTest(workload, flags) {
     headless: false,
     executablePath: settings.chrome_path,
     viewport: null,
+    ignoreHTTPSErrors: true,
     args: args
   });
   const page = await browser.newPage();

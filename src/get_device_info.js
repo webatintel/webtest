@@ -99,7 +99,7 @@ async function getDeviceInfo() {
     "Power Governor": powerPlan,
     "OS": platform,
     "OS Version": osData.release,
-    "Browser": "Chrome-" + chromeVersion
+    "Browser": chromeVersion
   };
   console.log(deviceInfo);
 

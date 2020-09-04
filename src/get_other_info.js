@@ -29,6 +29,14 @@ async function getOtherInfo() {
 
   // Get Chrome version
   await page.goto('chrome://version');
+  const browserNameElem = await page.$('#inner > tbody > tr:nth-child(1) > td.label');
+  let browserName = await browserNameElem.evaluate(element => element.innerText);
+
+ if (browserName.includes('Chromium')) {
+    browserName = 'Chromium';
+  } else {
+    browserName = 'Chrome';
+  }
   const versionElement = await page.$('#version');
   const versionInfo = await versionElement.evaluate(element => element.innerText);
   console.log(versionInfo);
@@ -48,10 +56,15 @@ async function getOtherInfo() {
   // } else if (versionInfo.includes('Developer') || versionInfo.includes('dev')) {
   } else if (versionInfo.includes('beta')) {
     chromeChannel = 'Beta';
+  } else if (versionInfo.includes('dev')) {
+    chromeChannel = 'Dev';
   } else {
-    chromeChannel = 'Dev'
+    chromeChannel = 'Stable';
   }
-  const chromeVersion = chromeChannel + '-' + versionInfo.split(' ')[0];
+  let chromeVersion = browserName + '-' + chromeChannel + '-' + versionInfo.split(' ')[0];
+  if (browserName === "Chromium") {
+    chromeVersion = browserName + '-' + versionInfo.split(' ')[0];
+  }
   console.log('********** Chrome version **********');
   console.log(chromeVersion);
   

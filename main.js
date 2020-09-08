@@ -104,14 +104,14 @@ if (settings.enable_cron) {
     const taskIntel = cron.schedule(settings.intel_test_cadence, () => {
       main();
     });
+    taskIntel.destroy();
   } else {
     const taskAmd = cron.schedule(settings.amd_test_cadence, () => {
       main();
     });
+    taskAmd.destroy();
   }
   taskUpdate.destroy();
-  taskIntel.destroy();
-  taskAmd.destroy();
 } else {
   main();
 }

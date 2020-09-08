@@ -27,7 +27,7 @@ async function main() {
   let subject = "";
   try {
     // Clean up chart folder
-    await chart.cleanUpChartFiles();
+    // await chart.cleanUpChartFiles();
     // Use private chroimum build if chromium build is enabled
     if (settings["chromium_builder"]["enable_chromium_build"]) {
       const commitId = settings["chromium_builder"]["commit_id"];
@@ -44,26 +44,26 @@ async function main() {
       subject = '[W' + weekAndDay + '] Web PnP auto test report - ' + platform + ' - ' + deviceInfo["CPU"]["info"] + ' - ' + deviceInfo.Browser;
     console.log("Subject: ", subject);
     // in dev mode, check browser version will be skipped.
-    if (!settings.dev_mode) {
-      await browser.checkBrowserVersion(deviceInfo);
-    }
+    // if (!settings.dev_mode) {
+    //   await browser.checkBrowserVersion(deviceInfo);
+    // }
     const workloadResults = await runTest.genWorkloadsResults(deviceInfo);
     // const workloadResults = await runTest.searchTestResults("Intel-TGL", "Canary", "86.0.4207");
     console.log(JSON.stringify(workloadResults, null, 4));
-    if (!settings.dev_mode) {
-      // Upload each testing result as excel to webpnp test reporter
-      const remoteExcelPathName = await excel.genExcelFilesAndUpload(workloadResults);
-      await excel.remoteExecUploadScript(remoteExcelPathName); // upload the .xlsx data
-    }
+    // if (!settings.dev_mode) {
+    //   // Upload each testing result as excel to webpnp test reporter
+    //   const remoteExcelPathName = await excel.genExcelFilesAndUpload(workloadResults);
+    //   await excel.remoteExecUploadScript(remoteExcelPathName); // upload the .xlsx data
+    // }
 
     let chartImages = [];
     // only attach the trend charts for regular weekly testing
     // Since AMD testing is before Intel, downloading charts is available after Intel testing done.
-    if (cpuModel.includes('Intel') && !settings.dev_mode) {
-      await chart.dlCharts(deviceInfo);
-      chartImages = await chart.getChartFiles();
-      console.log(chartImages);
-    }
+    // if (cpuModel.includes('Intel') && !settings.dev_mode) {
+    //   await chart.dlCharts(deviceInfo);
+    //   chartImages = await chart.getChartFiles();
+    //   console.log(chartImages);
+    // }
 
     let mailType = 'test_report';
     if (cpuModel.includes('AMD') || settings.dev_mode)
@@ -97,18 +97,21 @@ async function main() {
 
 
 if (settings.enable_cron) {
-  cron.schedule(settings.update_browser_sched, () => {
+  const taskUpdate = cron.schedule(settings.update_browser_sched, () => {
     browser.updateChrome();
   });
   if (cpuModel.includes('Intel')) {
-    cron.schedule(settings.intel_test_cadence, () => {
+    const taskIntel = cron.schedule(settings.intel_test_cadence, () => {
       main();
     });
   } else {
-    cron.schedule(settings.amd_test_cadence, () => {
+    const taskAmd = cron.schedule(settings.amd_test_cadence, () => {
       main();
     });
   }
+  taskUpdate.destroy();
+  taskIntel.destroy();
+  taskAmd.destroy();
 } else {
   main();
 }

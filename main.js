@@ -91,27 +91,24 @@ async function main() {
 
   // Update the browser version in config.json if necessary
   // await browser.updateConfig(deviceInfo, settings);
-  await chart.cleanUpChartFiles();
+  // await chart.cleanUpChartFiles();
 
 }
 
 
 if (settings.enable_cron) {
-  const taskUpdate = cron.schedule(settings.update_browser_sched, () => {
+  cron.schedule(settings.update_browser_sched, () => {
     browser.updateChrome();
   });
   if (cpuModel.includes('Intel')) {
-    const taskIntel = cron.schedule(settings.intel_test_cadence, () => {
+    cron.schedule(settings.intel_test_cadence, () => {
       main();
     });
-    taskIntel.destroy();
   } else {
-    const taskAmd = cron.schedule(settings.amd_test_cadence, () => {
+    cron.schedule(settings.amd_test_cadence, () => {
       main();
     });
-    taskAmd.destroy();
   }
-  taskUpdate.destroy();
 } else {
   main();
 }

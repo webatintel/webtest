@@ -232,7 +232,8 @@ async function genWorkloadsResults(deviceInfo) {
     'Aquarium': runAquarium,
     'BaseMark': runBasemark,
     'TensorFlow_Wasm': runTensorflow,
-    'TensorFlow_WebGL': runTensorflow
+    'TensorFlow_WebGL': runTensorflow,
+    'TensorFlow_WebGPU': runTensorflow
   };
   for (const workload of settings.workloads) {
     let executor = executors[workload.name];

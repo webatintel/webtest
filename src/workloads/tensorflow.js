@@ -28,8 +28,16 @@ async function runTensorflowTest(workload, flags) {
   browser.setDefaultNavigationTimeout( 3 * 60 * 1000 );
   await page.goto(workload.url, { waitUntil: "networkidle" });
   if (workload.name === "TensorFlow_WebGL") {
+    const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
+    await modelsSelect.type('posenet_resNet_q4_s32_input224', {delay: 100});
     const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
     await backendSelect.type('webgl', {delay: 100});
+  }
+  if (workload.name === "TensorFlow_WebGPU") {
+    const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
+    await modelsSelect.type('posenet_resNet_q4_s32_input224', {delay: 100});
+    const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
+    await backendSelect.type('webgpu', {delay: 100});
   }
   await page.waitForTimeout(3 * 1000);
   console.log(`********** Running ${workload.name} tests... **********`);

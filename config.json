@@ -1,32 +1,56 @@
 {
   "workloads": [
     {
-      "name": "TensorFlow_WebGPU",
-      "url": "http://localhost:8080/local-benchmark/",
+      "name": "TensorFlow_WebGPU_ResNet",
+      "url": "http://bjwdeotc009.ccr.corp.intel.com:8080/local-benchmark/",
       "run_times": 3,
-      "sleep_interval": 300
+      "sleep_interval": 30
     },
     {
-      "name": "TensorFlow_WebGL",
-      "url": "http://localhost:8080/local-benchmark/",
+      "name": "TensorFlow_WebGL_ResNet",
+      "url": "http://bjwdeotc009.ccr.corp.intel.com:8080/local-benchmark/",
       "run_times": 3,
-      "sleep_interval": 300
+      "sleep_interval": 30
+    },
+    {
+      "name": "TensorFlow_WebGPU_MobileNet",
+      "url": "http://bjwdeotc009.ccr.corp.intel.com:8080/local-benchmark/",
+      "run_times": 3,
+      "sleep_interval": 30
+    },
+    {
+      "name": "TensorFlow_WebGL_MobileNet",
+      "url": "http://bjwdeotc009.ccr.corp.intel.com:8080/local-benchmark/",
+      "run_times": 3,
+      "sleep_interval": 30
     }
   ],
   "win_chrome_path": "C:\\Users\\haoyunfe\\AppData\\Local\\Google\\Chrome SxS\\Application\\chrome.exe",
   "linux_chrome_path": "/usr/bin/google-chrome-unstable",
-  "chrome_flags": [],
+  "chrome_flags": ["--enable-unsafe-webgpu"],
   "update_browser_sched": "0 0 0 * * 0,1,2,3,4,5,6",
   "intel_test_cadence": "0 0 5 * * 0,1,2,3,4,5,6",
   "amd_test_cadence": "0 0 1 * * Sat",
   "enable_cron": false,
   "mail_test_report": {
-    "from": "yunfei.hao@intel.com",
-    "to": ["yunfei.hao@intel.com"]
+    "from": "bots@bjwdeotc009.ccr.corp.intel.com",
+    "to": [
+           "yunfei.hao@intel.com",
+           "jiajia.qin@intel.com",
+           "xing.xu@intel.com",
+           "xinghua.cao@intel.com",
+           "yang.gu@intel.com"
+          ]
   },
   "mail_dev_notice": {
-    "from": "yunfei.hao@intel.com",
-    "to":["yunfei.hao@intel.com"]
+    "from": "bots@bjwdeotc009.ccr.corp.intel.com",
+    "to": [
+           "yunfei.hao@intel.com",
+           "jiajia.qin@intel.com",
+           "xing.xu@intel.com",
+           "xinghua.cao@intel.com",
+           "yang.gu@intel.com"
+          ]
   },
   "result_server": {
     "host": "10.239.115.92",

@@ -11,6 +11,7 @@ const { exec } = require("child_process");
 async function getDeviceInfo() {
   const otherInfo = await getOtherInfo();
   const chromeVersion = otherInfo.chromeVersion;
+  const chromRev = otherInfo.chromeRev;
   const gpuDriverVersion = otherInfo.gpuDriverVersion;
   const screenRes = otherInfo.ScreenResolution;
 
@@ -99,7 +100,8 @@ async function getDeviceInfo() {
     "Power Governor": powerPlan,
     "OS": platform,
     "OS Version": osData.release,
-    "Browser": chromeVersion
+    "Browser": chromeVersion,
+    "BrowserRev": chromRev
   };
   console.log(deviceInfo);
 

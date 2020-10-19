@@ -13,12 +13,15 @@ const cron = require('node-cron');
 const moment = require('moment');
 const os = require('os');
 const GetChromiumBuild = require('./src/get_chromium_build.js');
+const repo = require('./src/tfjs_repo.js');
 
 
 const cpuModel = os.cpus()[0].model;
 const platform = runTest.getPlatformName();
 
 async function main() {
+  //await browser.updateChrome();
+  await repo.updateTFJS();
 
   let now = moment();
   const weekAndDay = now.week() + '.' + now.day();
@@ -32,7 +35,7 @@ async function main() {
     if (settings["chromium_builder"]["enable_chromium_build"]) {
       const commitId = settings["chromium_builder"]["commit_id"];
       if (commitId !== "") {
-        subject = `Web PnP auto test report on ${platform} with commit id: ${commitId}`;
+        subject = `Web auto test report on ${platform} with commit id: ${commitId}`;
         await GetChromiumBuild(commitId);
       } else {
         throw Error("Commit id should be specific in config.json if you run with chromium build");
@@ -41,7 +44,7 @@ async function main() {
 
     deviceInfo = await genDeviceInfo();
     if (subject === "")
-      subject = '[W' + weekAndDay + '] Web PnP auto test report - ' + platform + ' - ' + deviceInfo["CPU"]["info"] + ' - ' + deviceInfo.Browser;
+      subject = '[W' + weekAndDay + '] TFJS auto test report - ' + platform + ' - ' + deviceInfo["CPU"]["info"] + ' - ' + deviceInfo.Browser;
     console.log("Subject: ", subject);
     // in dev mode, check browser version will be skipped.
     // if (!settings.dev_mode) {
@@ -99,6 +102,7 @@ async function main() {
 if (settings.enable_cron) {
   cron.schedule(settings.update_browser_sched, () => {
     browser.updateChrome();
+    repo.updateTFJS();
   });
   if (cpuModel.includes('Intel')) {
     cron.schedule(settings.intel_test_cadence, () => {

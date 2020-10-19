@@ -31,6 +31,9 @@ async function getOtherInfo() {
   await page.goto('chrome://version');
   const browserNameElem = await page.$('#inner > tbody > tr:nth-child(1) > td.label');
   let browserName = await browserNameElem.evaluate(element => element.innerText);
+  const browserRevElem = await page.$('#inner > tbody > tr:nth-child(2) > td.version');
+  let browserRev = await browserRevElem.evaluate(element => element.innerText);
+  console.log(browserRev);
 
  if (browserName.includes('Chromium')) {
     browserName = 'Chromium';
@@ -67,6 +70,8 @@ async function getOtherInfo() {
   }
   console.log('********** Chrome version **********');
   console.log(chromeVersion);
+  console.log('********** Chrome Rev **********');
+  console.log(versionInfo);
   
   // Get GPU driver version
   console.log('********** GPU driver version **********');
@@ -95,6 +100,7 @@ async function getOtherInfo() {
 
   const otherInfo = {
     "chromeVersion": chromeVersion,
+    "chromeRev": browserRev,
     "gpuDriverVersion": gpuDriverVersion,
     "ScreenResolution": screenRes
   };

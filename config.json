@@ -2,25 +2,25 @@
   "workloads": [
     {
       "name": "TensorFlow_WebGPU_ResNet",
-      "url": "http://bjwdeotc009.ccr.corp.intel.com:8080/local-benchmark/",
+      "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
       "run_times": 3,
       "sleep_interval": 30
     },
     {
       "name": "TensorFlow_WebGL_ResNet",
-      "url": "http://bjwdeotc009.ccr.corp.intel.com:8080/local-benchmark/",
+      "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
       "run_times": 3,
       "sleep_interval": 30
     },
     {
       "name": "TensorFlow_WebGPU_MobileNet",
-      "url": "http://bjwdeotc009.ccr.corp.intel.com:8080/local-benchmark/",
+      "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
       "run_times": 3,
       "sleep_interval": 30
     },
     {
       "name": "TensorFlow_WebGL_MobileNet",
-      "url": "http://bjwdeotc009.ccr.corp.intel.com:8080/local-benchmark/",
+      "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
       "run_times": 3,
       "sleep_interval": 30
     }
@@ -29,11 +29,11 @@
   "linux_chrome_path": "/usr/bin/google-chrome-unstable",
   "chrome_flags": ["--enable-unsafe-webgpu"],
   "update_browser_sched": "0 0 0 * * 0,1,2,3,4,5,6",
-  "intel_test_cadence": "0 0 5 * * 0,1,2,3,4,5,6",
+  "intel_test_cadence": "0 0 1 * * 0,1,2,3,4,5,6",
   "amd_test_cadence": "0 0 1 * * Sat",
-  "enable_cron": false,
+  "enable_cron": true,
   "mail_test_report": {
-    "from": "bots@bjwdeotc009.ccr.corp.intel.com",
+    "from": "bots@wp-27.sh.intel.com",
     "to": [
            "yunfei.hao@intel.com",
            "jiajia.qin@intel.com",
@@ -43,7 +43,7 @@
           ]
   },
   "mail_dev_notice": {
-    "from": "bots@bjwdeotc009.ccr.corp.intel.com",
+    "from": "bots@wp-27.sh.intel.com",
     "to": [
            "yunfei.hao@intel.com",
            "jiajia.qin@intel.com",

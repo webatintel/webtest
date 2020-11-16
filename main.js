@@ -13,7 +13,7 @@ const cron = require('node-cron');
 const moment = require('moment');
 const os = require('os');
 const GetChromiumBuild = require('./src/get_chromium_build.js');
-const repo = require('./src/tfjs_repo.js');
+//const repo = require('./src/tfjs_repo.js');
 
 
 const cpuModel = os.cpus()[0].model;
@@ -21,7 +21,7 @@ const platform = runTest.getPlatformName();
 
 async function main() {
   //await browser.updateChrome();
-  await repo.updateTFJS();
+  //await repo.updateTFJS();
 
   let now = moment();
   const weekAndDay = now.week() + '.' + now.day();
@@ -102,11 +102,14 @@ async function main() {
 if (settings.enable_cron) {
   cron.schedule(settings.update_browser_sched, () => {
     browser.updateChrome();
-    repo.updateTFJS();
+    //repo.updateTFJS();
   });
   if (cpuModel.includes('Intel')) {
-    cron.schedule(settings.intel_test_cadence, () => {
-      main();
+    cron.schedule(settings.intel_test_cadence, async () => {
+      settings.chrome_flags = ["--enable-unsafe-webgpu", "--enable-dawn-features=disable_robustness"];
+      await main();
+      settings.chrome_flags = ["--enable-unsafe-webgpu"];
+      await main();
     });
   } else {
     cron.schedule(settings.amd_test_cadence, () => {
@@ -114,5 +117,10 @@ if (settings.enable_cron) {
     });
   }
 } else {
-  main();
+  browser.updateChrome();
+  settings.chrome_flags = ["--enable-unsafe-webgpu", "--enable-dawn-features=disable_robustness"];
+  main().then(() => {
+    settings.chrome_flags = ["--enable-unsafe-webgpu"];
+    main();
+  });
 }

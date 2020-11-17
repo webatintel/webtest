@@ -27,27 +27,51 @@ async function runTensorflowTest(workload, flags) {
   console.log(`********** Going to URL: ${workload.url} **********`);
   browser.setDefaultNavigationTimeout( 3 * 60 * 1000 );
   await page.goto(workload.url, { waitUntil: "networkidle" });
-  if (workload.name === "TensorFlow_WebGL_ResNet") {
+  if (workload.name === "TensorFlow_WebGL_ResNet_Tensor") {
     const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
-    await modelsSelect.type('posenet_resNet_q4_s32_input224', {delay: 100});
+    await modelsSelect.type('posenet_resNet_q4_s32_input224_tensor', {delay: 100});
     const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
     await backendSelect.type('webgl', {delay: 100});
   }
-  if (workload.name === "TensorFlow_WebGPU_ResNet") {
+  if (workload.name === "TensorFlow_WebGL_ResNet_Image") {
     const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
-    await modelsSelect.type('posenet_resNet_q4_s32_input224', {delay: 100});
+    await modelsSelect.type('posenet_resNet_q4_s32_input224_image', {delay: 100});
+    const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
+    await backendSelect.type('webgl', {delay: 100});
+  }
+  if (workload.name === "TensorFlow_WebGPU_ResNet_Tensor") {
+    const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
+    await modelsSelect.type('posenet_resNet_q4_s32_input224_tensor', {delay: 100});
     const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
     await backendSelect.type('webgpu', {delay: 100});
   }
-  if (workload.name === "TensorFlow_WebGL_MobileNet") {
+  if (workload.name === "TensorFlow_WebGPU_ResNet_Image") {
     const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
-    await modelsSelect.type('posenet_mobileNet_q2_m75_s16_input513', {delay: 100});
+    await modelsSelect.type('posenet_resNet_q4_s32_input224_image', {delay: 100});
+    const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
+    await backendSelect.type('webgpu', {delay: 100});
+  }
+  if (workload.name === "TensorFlow_WebGL_MobileNet_Tensor") {
+    const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
+    await modelsSelect.type('posenet_mobileNet_q2_m75_s16_input513_tensor', {delay: 100});
     const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
     await backendSelect.type('webgl', {delay: 100});
   }
-  if (workload.name === "TensorFlow_WebGPU_MobileNet") {
+  if (workload.name === "TensorFlow_WebGL_MobileNet_Image") {
     const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
-    await modelsSelect.type('posenet_mobileNet_q2_m75_s16_input513', {delay: 100});
+    await modelsSelect.type('posenet_mobileNet_q2_m75_s16_input513_image', {delay: 100});
+    const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
+    await backendSelect.type('webgl', {delay: 100});
+  }
+  if (workload.name === "TensorFlow_WebGPU_MobileNet_Tensor") {
+    const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
+    await modelsSelect.type('posenet_mobileNet_q2_m75_s16_input513_tensor', {delay: 100});
+    const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
+    await backendSelect.type('webgpu', {delay: 100});
+  }
+  if (workload.name === "TensorFlow_WebGPU_MobileNet_Image") {
+    const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
+    await modelsSelect.type('posenet_mobileNet_q2_m75_s16_input513_image', {delay: 100});
     const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
     await backendSelect.type('webgpu', {delay: 100});
   }

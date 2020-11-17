@@ -6,6 +6,7 @@ const path = require('path');
 const os = require('os');
 const { table } = require('console');
 const settings = require('../config.json');
+const http = require('http');
 // const sendMail = require('./send_mail.js');
 
 function drawResultHeader(basedResult) {
@@ -83,6 +84,25 @@ function drawDeviceInfoTable(basedResult) {
   return `${deviceInfoTable}</table>`;
 }
 
+async function getCommitId() {
+  return new Promise((resolve) => {
+
+    http.get('http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/.git/refs/heads/master', (resp) => {
+
+      let commitId = '';
+      // A chunk of data has been recieved.
+      resp.on('data', (chunk) => {
+        commitId += chunk;
+      });
+
+      // The whole response has been received. Print out the result.
+      resp.on('end', () => {
+        resolve(commitId);
+      });
+
+    });
+  });
+}
 /*
 * Generate test report as html
 * @param: {Object}, resultPaths, an object reprensents for test result path
@@ -99,6 +119,7 @@ async function genSingleTestReport(resultPaths) {
   let roundsTable = "<table>";
   let basedResult;
   let flag = false;
+  const commitId = await getCommitId();
   for (const key in resultPaths) {
     const resultPath = resultPaths[key];
 
@@ -126,6 +147,8 @@ async function genSingleTestReport(resultPaths) {
     workloadUrls += `    - <b>${workload.name}</b>: <a href="${workload.url}">${workload.url}</a><br>`;
   }
   const chromePath = "<br><b>Chrome path: </b>" + settings.chrome_path;
+  const chromeFlags = "<br><b>Chrome flags: </b>" + basedResult.chrome_flags;
+  const commitIdHtml = "<br><b>TFJS repo commit id: </b>" + commitId;
 
   // Get device info table
   const deviceInfoTable = drawDeviceInfoTable(basedResult);
@@ -139,7 +162,7 @@ async function genSingleTestReport(resultPaths) {
 
   // Composite html body
   const html = htmlStyle + roundsTable + "<b>Details:</b>"
-    + resultTables + "<br><br>" + workloadUrls + chromePath + "<br><br><b>Device Info:</b>" + deviceInfoTable;
+    + resultTables + "<br><br>" + workloadUrls + chromePath + chromeFlags + commitIdHtml + "<br><br><b>Device Info:</b>" + deviceInfoTable;
   console.log("******Generate html to test.html******");
   await fsPromises.writeFile('./test.html', html);
   return Promise.resolve(html);

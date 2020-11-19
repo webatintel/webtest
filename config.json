@@ -59,21 +59,13 @@
   "mail_test_report": {
     "from": "bots@wp-27.sh.intel.com",
     "to": [
-           "yunfei.hao@intel.com",
-           "jiajia.qin@intel.com",
-           "xing.xu@intel.com",
-           "xinghua.cao@intel.com",
-           "yang.gu@intel.com"
+           "webgraphics@intel.com"
           ]
   },
   "mail_dev_notice": {
     "from": "bots@wp-27.sh.intel.com",
     "to": [
-           "yunfei.hao@intel.com",
-           "jiajia.qin@intel.com",
-           "xing.xu@intel.com",
-           "xinghua.cao@intel.com",
-           "yang.gu@intel.com"
+           "webgraphics@intel.com"
           ]
   },
   "result_server": {

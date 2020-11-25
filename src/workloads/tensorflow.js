@@ -51,6 +51,18 @@ async function runTensorflowTest(workload, flags) {
     const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
     await backendSelect.type('webgpu', {delay: 100});
   }
+  if (workload.name === "TensorFlow_WASM_ResNet_Tensor") {
+    const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
+    await modelsSelect.type('posenet_resNet_q4_s32_input224_tensor', {delay: 100});
+    const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
+    await backendSelect.type('wasm', {delay: 100});
+  }
+  if (workload.name === "TensorFlow_WASM_ResNet_Image") {
+    const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
+    await modelsSelect.type('posenet_resNet_q4_s32_input224_image', {delay: 100});
+    const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
+    await backendSelect.type('wasm', {delay: 100});
+  }
   if (workload.name === "TensorFlow_WebGL_MobileNet_Tensor") {
     const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
     await modelsSelect.type('posenet_mobileNet_q2_m75_s16_input513_tensor', {delay: 100});
@@ -74,6 +86,18 @@ async function runTensorflowTest(workload, flags) {
     await modelsSelect.type('posenet_mobileNet_q2_m75_s16_input513_image', {delay: 100});
     const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
     await backendSelect.type('webgpu', {delay: 100});
+  }
+  if (workload.name === "TensorFlow_WASM_MobileNet_Tensor") {
+    const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
+    await modelsSelect.type('posenet_mobileNet_q2_m75_s16_input513_tensor', {delay: 100});
+    const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
+    await backendSelect.type('wasm', {delay: 100});
+  }
+  if (workload.name === "TensorFlow_WASM_MobileNet_Image") {
+    const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
+    await modelsSelect.type('posenet_mobileNet_q2_m75_s16_input513_image', {delay: 100});
+    const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
+    await backendSelect.type('wasm', {delay: 100});
   }
   await page.waitForTimeout(3 * 1000);
   console.log(`********** Running ${workload.name} tests... **********`);

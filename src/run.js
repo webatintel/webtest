@@ -234,12 +234,16 @@ async function genWorkloadsResults(deviceInfo) {
     'TensorFlow_Wasm': runTensorflow,
     'TensorFlow_WebGL_ResNet_Tensor': runTensorflow,
     'TensorFlow_WebGL_ResNet_Image': runTensorflow,
-    'TensorFlow_WebGPU_ResNet_Tensor': runTensorflow,
-    'TensorFlow_WebGPU_ResNet_Image': runTensorflow,
     'TensorFlow_WebGL_MobileNet_Tensor': runTensorflow,
     'TensorFlow_WebGL_MobileNet_Image': runTensorflow,
+    'TensorFlow_WebGPU_ResNet_Tensor': runTensorflow,
+    'TensorFlow_WebGPU_ResNet_Image': runTensorflow,
     'TensorFlow_WebGPU_MobileNet_Tensor': runTensorflow,
-    'TensorFlow_WebGPU_MobileNet_Image': runTensorflow
+    'TensorFlow_WebGPU_MobileNet_Image': runTensorflow,
+    'TensorFlow_WASM_ResNet_Tensor': runTensorflow,
+    'TensorFlow_WASM_ResNet_Image': runTensorflow,
+    'TensorFlow_WASM_MobileNet_Tensor': runTensorflow,
+    'TensorFlow_WASM_MobileNet_Image': runTensorflow,
   };
   for (const workload of settings.workloads) {
     let executor = executors[workload.name];

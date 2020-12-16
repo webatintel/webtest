@@ -84,7 +84,7 @@ async function getDeviceInfo() {
         } else if (stdout.includes("Power saver") || stdout.includes("省电")) {
           resolve("Power saver");
         } else {
-          reject("error: Unknown power plan");
+          resolve("error: Unknown power plan");
         }
       });
     });

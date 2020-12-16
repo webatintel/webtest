@@ -3,74 +3,74 @@
     {
       "name": "TensorFlow_WebGPU_ResNet_Tensor",
       "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
-      "run_times": 3,
-      "sleep_interval": 30
+      "run_times": 1,
+      "sleep_interval": 3
     },
     {
       "name": "TensorFlow_WebGL_ResNet_Tensor",
       "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
-      "run_times": 3,
-      "sleep_interval": 30
+      "run_times": 1,
+      "sleep_interval": 3
     },
     {
       "name": "TensorFlow_WASM_ResNet_Tensor",
       "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
-      "run_times": 3,
-      "sleep_interval": 30
+      "run_times": 1,
+      "sleep_interval": 3
     },
     {
       "name": "TensorFlow_WebGPU_ResNet_Image",
       "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
-      "run_times": 3,
-      "sleep_interval": 30
+      "run_times": 1,
+      "sleep_interval": 3
     },
     {
       "name": "TensorFlow_WebGL_ResNet_Image",
       "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
-      "run_times": 3,
-      "sleep_interval": 30
+      "run_times": 1,
+      "sleep_interval": 3
     },
     {
       "name": "TensorFlow_WASM_ResNet_Image",
       "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
-      "run_times": 3,
-      "sleep_interval": 30
+      "run_times": 1,
+      "sleep_interval": 3
     },
     {
       "name": "TensorFlow_WebGPU_MobileNet_Tensor",
       "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
-      "run_times": 3,
-      "sleep_interval": 30
+      "run_times": 1,
+      "sleep_interval": 3
     },
     {
       "name": "TensorFlow_WebGL_MobileNet_Tensor",
       "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
-      "run_times": 3,
-      "sleep_interval": 30
+      "run_times": 1,
+      "sleep_interval": 3
     },
     {
       "name": "TensorFlow_WASM_MobileNet_Tensor",
       "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
-      "run_times": 3,
-      "sleep_interval": 30
+      "run_times": 1,
+      "sleep_interval": 3
     },
     {
       "name": "TensorFlow_WebGPU_MobileNet_Image",
       "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
-      "run_times": 3,
-      "sleep_interval": 30
+      "run_times": 1,
+      "sleep_interval": 3
     },
     {
       "name": "TensorFlow_WebGL_MobileNet_Image",
       "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
-      "run_times": 3,
-      "sleep_interval": 30
+      "run_times": 1,
+      "sleep_interval": 3
     },
     {
       "name": "TensorFlow_WASM_MobileNet_Image",
       "url": "http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/",
-      "run_times": 3,
-      "sleep_interval": 30
+      "run_times": 1,
+      "sleep_interval": 3
     }
   ],
   "win_chrome_path": "C:\\Users\\haoyunfe\\AppData\\Local\\Google\\Chrome SxS\\Application\\chrome.exe",

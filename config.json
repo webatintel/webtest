@@ -79,7 +79,7 @@
   "update_browser_sched": "0 0 0 * * 0,1,2,3,4,5,6",
   "intel_test_cadence": "0 0 1 * * 0,1,2,3,4,5,6",
   "amd_test_cadence": "0 0 1 * * Sat",
-  "enable_cron": true,
+  "enable_cron": false,
   "mail_test_report": {
     "from": "bots@wp-27.sh.intel.com",
     "to": [

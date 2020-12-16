@@ -109,8 +109,8 @@ if (settings.enable_cron) {
       settings.chrome_flags = ["--enable-unsafe-webgpu", "--enable-dawn-features=disable_robustness",
     "--enable-features=WebAssemblySimd,WebAssemblyThreads"];
       await main();
-      settings.chrome_flags = ["--enable-unsafe-webgpu","--enable-features=WebAssemblySimd,WebAssemblyThreads"];
-      await main();
+      // settings.chrome_flags = ["--enable-unsafe-webgpu","--enable-features=WebAssemblySimd,WebAssemblyThreads"];
+      // await main();
     });
   } else {
     cron.schedule(settings.amd_test_cadence, () => {
@@ -121,8 +121,9 @@ if (settings.enable_cron) {
   browser.updateChrome();
   settings.chrome_flags = ["--enable-unsafe-webgpu", "--enable-dawn-features=disable_robustness",
     "--enable-features=WebAssemblySimd,WebAssemblyThreads"];
-  main().then(() => {
-    settings.chrome_flags = ["--enable-unsafe-webgpu", "--enable-features=WebAssemblySimd,WebAssemblyThreads"];
-    main();
-  });
+  // main().then(() => {
+  //   settings.chrome_flags = ["--enable-unsafe-webgpu", "--enable-features=WebAssemblySimd,WebAssemblyThreads"];
+  //   main();
+  // });
+  main();
 }

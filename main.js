@@ -17,15 +17,21 @@ const GetChromiumBuild = require('./src/get_chromium_build.js');
 const args = require('yargs')
   .usage('node $0 [args]')
   .option('email', {
+    alias: 'e',
     type: 'string',
     describe: 'email to',
   })
   .option('update-chrome', {
+    alias: 'u',
     type: 'boolean',
     describe: 'Update chrome',
   })
+  .example([
+    ['node $0 --email yourname@intel.com','send report to yourname@intel.com'],
+    ['node $0 -u -e yourname@intel.com','update chrome and send report to yourname@intel.com'],
+  ])
   .help()
-  .argv
+  .argv;
 
 const cpuModel = os.cpus()[0].model;
 const platform = runTest.getPlatformName();

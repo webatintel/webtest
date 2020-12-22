@@ -270,11 +270,6 @@ async function hasPreResults(resultPaths) {
 /*
 * Generate test report as html
 * @param: {Object}, resultPaths, an object reprensents for test result path
-* e.g.
-* {
-*   "Speedometer2": path.join(__dirname, "../results/Windows/Speedometer2/20200606042844_Intel-TGL-i7-1165G7_Chrome-Canary-85.0.4165.0.json"),
-*	  "WebXPRT3": path.join(__dirname, "../results/Windows/WebXPRT3/20200606053303_Intel-TGL-i7-1165G7_Chrome-Canary-85.0.4165.0.json")
-* }
 */
 async function genTestReport(resultPaths) {
   console.log("********** Generate test report as html **********");

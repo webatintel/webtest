@@ -127,11 +127,6 @@ async function getCommitId() {
 /*
 * Generate test report as html
 * @param: {Object}, resultPaths, an object reprensents for test result path
-* e.g.
-* {
-*   "Speedometer2": path.join(__dirname, "../results/Windows/Speedometer2/20200606042844_Intel-TGL-i7-1165G7_Chrome-Canary-85.0.4165.0.json"),
-*	  "WebXPRT3": path.join(__dirname, "../results/Windows/WebXPRT3/20200606053303_Intel-TGL-i7-1165G7_Chrome-Canary-85.0.4165.0.json")
-* }
 */
 async function genSingleTestReport(resultPaths) {
   console.log("********** Generate test report as html **********");
@@ -144,6 +139,7 @@ async function genSingleTestReport(resultPaths) {
   let length = Object.keys(resultPaths).length;
   let n = 0;
   const commitId = await getCommitId();
+
   for (const key in resultPaths) {
     const resultPath = resultPaths[key];
 
@@ -173,7 +169,7 @@ async function genSingleTestReport(resultPaths) {
     // Draw result table
     console.log(`n is ${n}, length is ${length}`)
     if (n === length) {
-    console.log(buffer);
+      console.log(buffer);
       roundsTable += drawRoundsHeader(basedResult, buffer);
       const resultTable = drawResultTable(basedResult);
       resultTables += `${resultTable}<br>`;

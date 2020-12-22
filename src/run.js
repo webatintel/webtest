@@ -10,9 +10,9 @@ function getPlatformName() {
   let platform = os.platform();
 
   if (platform === 'win32') {
-    return 'Windows';
+    return 'windows';
   } else {
-    return 'Linux';
+    return 'linux';
   }
 }
 
@@ -32,11 +32,6 @@ async function runWorkload(workload, executor) {
   let originScoresArray = [];
   let scoresArray = [];
   const flags = settings.chrome_flags;
-  // if workload === unity3D || Speedometer2, warm up
-  if (workload.name === "Unity3D" || workload.name === "Speedometer2") {
-    await executor(workload, flags);
-    await new Promise(resolve => setTimeout(resolve, 100 * 1000)); // sleep for a while before next time running
-  }
   for (let i = 0; i < workload.run_times; i++) {
     let thisScore = await executor(workload, flags);
     originScoresArray.push(thisScore);
@@ -169,43 +164,6 @@ async function syncRemoteDirectory(workload, action) {
 }
 
 /*
-* Note: Specific for regular weekly testing
-* Search test results for one round of regular testing
-* with keywords of 'cpu', 'browser channel',
-* and 'browser version'.
-* Return: {Object}, like {
-*   'Speedometer2': 'path/to/json/file',
-*   ...
-* }
-*/
-async function searchTestResults(cpu, browserChannel, browserVersion) {
-  let results = {};
-  for (let workload of settings.workloads) {
-    let testResultDir = await syncRemoteDirectory(workload, 'pull');
-    let resultFiles = await fs.promises.readdir(testResultDir);
-    let result = [];
-    for (let file of resultFiles) {
-      if (file.includes(cpu) && file.includes(browserChannel) && file.includes(browserVersion))
-        result.push(file);
-    }
-    if(result.length !== 1)
-      return Promise.reject(`Error: unexpected result length: ${result.length}`);
-    results[workload.name] = path.join(testResultDir, result[0]);
-  }
-  console.log(results);
-  return Promise.resolve(results);
-}
-
-/**
- * Pull all workloads results from host server
- */
-async function pullRemoteResults() {
-  for (let workload of settings.workloads) {
-    await syncRemoteDirectory(workload, 'pull');
-  }
-  return Promise.resolve();
-}
-/*
 * Run all the workloads defined in ../config.json and
 * generate the results to the ../results directory.
 * Return: an object like {
@@ -217,14 +175,6 @@ async function genWorkloadsResults(deviceInfo) {
 
   let results = {};
   let executors = {
-    'Speedometer2': runSpeedometer2,
-    'WebXPRT3': runWebXPRT3,
-    'WebXPRT2015': runWebXPRT2015,
-    'Unity3D': runUnity3D,
-    'JetStream2': runJetStream2,
-    'Aquarium': runAquarium,
-    'BaseMark': runBasemark,
-    'TensorFlow_Wasm': runTensorflow,
     'TensorFlow_WebGL_ResNet_Tensor': runTensorflow,
     'TensorFlow_WebGL_ResNet_Image': runTensorflow,
     'TensorFlow_WebGL_MobileNet_Tensor': runTensorflow,

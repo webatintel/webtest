@@ -67,7 +67,7 @@ async function getDeviceInfo() {
 
   let powerPlan = "N/A";
 
-  if (platform.includes("Windows")) {
+  if (platform.includes("windows")) {
     powerPlan = await new Promise((resolve, reject) => {
       // `cmd /c chcp 65001>nul &&`: this command sets cmd's console output to utf-8) at start of my exec command
       exec("cmd /c chcp 65001>nul && powercfg /GetActiveScheme", (error, stdout, stderr) => {

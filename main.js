@@ -6,7 +6,6 @@ const browser = require('./src/browser.js');
 const genTestReport = require('./src/gen_single_report.js');
 const sendMail = require('./src/send_mail.js');
 const settings = require('./config.json');
-const excel = require('./src/excel.js');
 const cron = require('node-cron');
 const moment = require('moment');
 const os = require('os');

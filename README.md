@@ -20,7 +20,6 @@ The automation test mainly takes the following actions:
   to `./results/{platform}/{workload}` directory(If it does not exists, create it). The files are named as `{data}_{CPU}_{Browser}.json`.
 * Before storing the test results to json files, download the test results of competitor from remote server. Then we can compare the
   scores to the ones from compettitor. After storing the results, upload this test results to remote server for backup.
-* Execute script on server to upload the data stored in excel file to the Web PnP Report site database.
 * Download the trend charts for each workload and put them on the `./charts` directory(If it does not exists, create it).
 * Generate html report that contains the comparison tables based on the json files. The comparison will base on the paris in
   `cpu_list.json`. The trend charts are insert into the html.
@@ -41,7 +40,7 @@ The automation test mainly takes the following actions:
   6. `mail_dev_notice` field is used for setting mail list who'd like to receive the error message when the testing goes into something wrong or receive test report when `dev_mode` is `true`.
   7. On Linux platform, please set the `chrome_linux_password` field the Linux sudo password. It's required while upgrading the
   chrome as install Linux package might need sudo permission.
-  8. `dev_mode` represents develop mode, setting it to `true` will skip the browser version check, skip generating and uploading excel file, skip test results sync and upload.
+  8. `dev_mode` represents develop mode, setting it to `true` will skip the browser version check, skip test results sync and upload.
   9. If you don't want to run the test at a specific schedule, you can simply set `enable_cron` to `false`. Then the browser upgrading will also be skipped.
   10. `chromium_builder` field is used for running test automation with specific chromium build from build server. Currently only support for Windows platform. The build server will automatically build chromium at the head of commit id passed by user, then upload chromium build to http://powerbuilder.sh.intel.com/project/chromium_builder/, and then this tool get the corresponding chromium build to run testing at target device. Once you set `enable_chromium_build` to `true`, you must set the `commit_id` to the specific commit id for building chromium, usually you only need to pass the first 7 characters of a normal chromium commit id. The build server's host and port are set in `host` and `port` fields by default. Note: with `enable_chromium_build` set to `true`, the tool will automatically udpate the `dev_mode` to `true`.
 

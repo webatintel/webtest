@@ -23,25 +23,6 @@ function drawResultHeader(basedResult) {
   return tableHeader + '</tr>';
 }
 
-function drawRoundsHeader(basedResult, buffer) {
-  let basedRoundCol = "<tr>";
-  let keys = Object.keys(buffer);
-  for (let key of keys) {
-    const basedResultLength = Object.keys(buffer[key]).length;
-    for (let i = 0; i < basedResultLength; i++) {
-      let backendName = Object.keys(buffer[key])[i];
-      if (!backends.includes(backendName)) backends.push(backendName);
-    }
-  }
-  backends.sort();
-  basedRoundCol += backends.reduce((acc, cur) => {return acc + `<th>${cur}</th>`}, '');
-
-  let header = `<tr><th rowspan='2'>Workloads</th><th colspan='${backends.length}'>\
-    ${basedResult.device_info.CPU.info + " " + basedResult.device_info.Browser}</th></tr>`;
-  header = header  + basedRoundCol + "</tr>";
-  return header;
-}
-
 function drawRoundsResult(basedResult, buffer) {
   let workloadLenth = Object.keys(buffer).length;
   const selectedStyle = "style='background-color: #4CAF50;'";
@@ -49,24 +30,28 @@ function drawRoundsResult(basedResult, buffer) {
   const badStyle = "style='color:red'";
   let style = '';
   let basedResultCol = '';
-  for (let i = 0; i < workloadLenth; i++){
+  for (let i = 0; i < workloadLenth; i++) {
     basedResultCol += `<tr><td>${Object.keys(buffer)[i]}</td>`;
     let backendsResult = buffer[Object.keys(buffer)[i]];
-    let wasmCol = `<td> - </td>`;
-    let webglCol = `<td> - </td>`;
-    let webgpuCol = `<td> - </td>`;
     let wasmValue = backendsResult.hasOwnProperty('wasm') ? backendsResult['wasm']['Total Score'].replace('ms', '') : 0;
     let webglValue = backendsResult.hasOwnProperty('webgl') ? backendsResult['webgl']['Total Score'].replace('ms', '') : 0;
     let webgpuValue = backendsResult.hasOwnProperty('webgpu') ? backendsResult['webgpu']['Total Score'].replace('ms', '') : 0;
-    console.log(`${wasmValue}, ${webglValue}, ${webgpuValue}`);
-    if (webgpuValue - wasmValue > 0) {
-      style = goodStyle;
+
+    style = webgpuValue < wasmValue ? goodStyle : badStyle;
+    let percent = '';
+    if (wasmValue !== 0 && webgpuValue !== 0) {
+      percent = parseFloat((wasmValue - webgpuValue) / wasmValue * 100).toFixed(2) + '%';
     }
-    style = webgpuValue - wasmValue > 0 ? goodStyle : badStyle;
-    wasmCol = `<td>${wasmValue}ms <span ${style}>${parseFloat((webgpuValue - wasmValue)/webgpuValue*100).toFixed(2)}%</span></td>`
-    style = webgpuValue - webglValue > 0 ? goodStyle : badStyle;
-    webglCol = `<td>${webglValue}ms <span ${style}>${parseFloat((webgpuValue - webglValue)/webgpuValue*100).toFixed(2)}%</span></td>`
-    webgpuCol = `<td>${webgpuValue}ms</td>`
+    let wasmCol = `<td>${wasmValue} <span ${style}>${percent}</span></td>`;
+
+    style = webgpuValue < webglValue ? goodStyle : badStyle;
+    percent = '';
+    if (webglValue !== 0 && webgpuValue !== 0) {
+      percent = parseFloat((webglValue - webgpuValue) / webglValue * 100).toFixed(2) + '%';
+    }
+    let webglCol = `<td>${webglValue} <span ${style}>${percent}</span></td>`;
+
+    let webgpuCol = `<td>${webgpuValue}</td>`;
     basedResultCol += wasmCol + webglCol + webgpuCol;
   }
 
@@ -76,7 +61,6 @@ function drawRoundsResult(basedResult, buffer) {
 
 function drawResultTable(basedResult) {
   let resultTable = "<table>" + drawResultHeader(basedResult);
-
 
   for (const key of Object.keys(basedResult.test_result)) {
     const basedValue = basedResult.test_result[key];
@@ -170,7 +154,7 @@ async function genSingleTestReport(resultPaths) {
     console.log(`n is ${n}, length is ${length}`)
     if (n === length) {
       console.log(buffer);
-      roundsTable += drawRoundsHeader(basedResult, buffer);
+      roundsTable += "<tr><th>Workload</th><th>WASM (ms)</th><th>WebGL (ms)</th><th>WebGPU (ms)</th></tr>";
       const resultTable = drawResultTable(basedResult);
       resultTables += `${resultTable}<br>`;
       roundsTable += drawRoundsResult(basedResult, buffer);

@@ -18,7 +18,11 @@ async function getDeviceInfo() {
   console.log('********** Get all device info **********');
   // Get GPU info
   const gpuData = await si.graphics();
-  const gpuModel = gpuData.controllers.slice(-1)[0].model;
+  let gpuModel = 'Unknown GPU';
+  // For remote desktop, there is no gpuData.controllers
+  if (gpuData.controllers.length >= 1) {
+    gpuModel = gpuData.controllers.slice(-1)[0].model;
+  }
   const gpuName = gpuModel.replace("(TM)", "").replace("(R)", "").replace("Intel ", "").replace("AMD ", "").replace("NVIDIA ", "");
 
   // Get CPU info

@@ -3,7 +3,7 @@ This is a test automation framework based on [Playwright](https://github.com/mic
 ## Support
 
 - Platforms: Windows, Linux
-- Workloads: Speedometer2, WebXPRT3, Unity3D, JetStream2
+- Workloads: TFJS
 
 ## Dependencies
 

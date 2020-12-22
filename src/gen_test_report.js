@@ -5,7 +5,6 @@ const fsPromises = fs.promises;
 const path = require('path');
 const os = require('os');
 const cpuList = require('../cpu_list.json');
-const chart = require('./chart.js');
 // const sendMail = require('./send_mail.js');
 
 /*
@@ -333,31 +332,11 @@ async function genTestReport(resultPaths) {
 	  th {background-color: #0071c5; color: #ffffff; font-weight: normal;} \
 		</style>";
   // Composite html body
-  let charts = await chart.getChartFiles();
-  let chartImages = '<br/>';
-  if (charts.length > 0) {
-    for (let chart of charts) {
-      chartImages += '<img src="cid:' + chart.replace('.png', '') + '" style="width:480px;height:360px;"><br/>';
-    }
-  }
-  const html = htmlStyle + chartImages + "<br/><b>Summary:</b>" + summaryTable + roundsTable + "<b>Details:</b>"
+  const html = htmlStyle + "<br/><b>Summary:</b>" + summaryTable + roundsTable + "<b>Details:</b>"
     + resultTables + "<br><br>" + "<b>Device Info:</b>" + deviceInfoTable;
   console.log("******Generate html to test.html******");
   await fsPromises.writeFile('./test.html', html);
   return Promise.resolve(html);
 }
-
-// // Used for debug
-// (async function() {
-// const workload =  {
-//     "Speedometer2": path.join(__dirname, "../results/Windows/Speedometer2/20200624203507_Intel-TGL-i7-1165G7_Chrome-Canary-85.0.4181.0.json"),
-//     "WebXPRT3": path.join(__dirname, "../results/Windows/WebXPRT3/20200624213919_Intel-TGL-i7-1165G7_Chrome-Canary-85.0.4181.0.json"),
-//     "Unity3D": path.join(__dirname, "../results/Windows/Unity3D/20200624222019_Intel-TGL-i7-1165G7_Chrome-Canary-85.0.4181.0.json"),
-//     "JetStream2": path.join(__dirname, "../results/Windows/JetStream2/20200624231527_Intel-TGL-i7-1165G7_Chrome-Canary-85.0.4181.0.json")
-// };
-// const result =await genTestReport(workload);
-// const chartImages = await chart.getChartFiles();
-// await sendMail("test", result, "error", chartImages);
-// })();
 
 module.exports = genTestReport;

@@ -77,7 +77,7 @@ function drawRoundsResult(basedResult, buffer) {
 function drawResultTable(basedResult) {
   let resultTable = "<table>" + drawResultHeader(basedResult);
 
-  
+
   for (const key of Object.keys(basedResult.test_result)) {
     const basedValue = basedResult.test_result[key];
     // Draw resultTable
@@ -204,15 +204,5 @@ async function genSingleTestReport(resultPaths) {
   await fsPromises.writeFile('./test.html', html);
   return Promise.resolve(html);
 }
-
-// // // Used for debug
-// (async function() {
-// const workload =  {
-//     "Speedometer2": path.join(__dirname, "./results/Windows/Speedometer2/20200618193506_Intel-CFL-i9-9900K_Chrome-Canary-85.0.4176.0.json"),
-//     "WebXPRT3": path.join(__dirname, "./results/Windows/WebXPRT3/20200618203935_Intel-CFL-i9-9900K_Chrome-Canary-85.0.4176.0.json")
-// };
-// const result =await genSingleTestReport(workload);
-// // await sendMail("test", result, "error", chartImages);
-// })();
 
 module.exports = genSingleTestReport;

@@ -8,9 +8,8 @@ const settings = require('../config.json');
 * Send mail to corresponding mail list
 * @param {String}, subject, represents mail's subject
 * @param {String}, html, uses html document to repensent mail content
-* @param {Array<String>}, chartImages, trend chart image file names in attachment
 */
-async function sendMail(to, subject, html, chartImages=[]) {
+async function sendMail(to, subject, html) {
   let from = "webgraphics@intel.com";
 
   // Create reusable transporter object
@@ -32,24 +31,12 @@ async function sendMail(to, subject, html, chartImages=[]) {
       console.log('server is ready to take our messages!');
   });
 
-  let charts = [];
-  if (chartImages.length !== 0) {
-    for (let chartImage of chartImages) {
-      let absChart = path.join(process.cwd(), 'charts', chartImage);
-      charts.push({
-        filename: chartImage,
-        path: absChart,
-        cid: chartImage.replace('.png', '')
-      });
-    }
-  }
   // send mail with defined transport object
   let info = await transporter.sendMail({
     from: from, // sender address
     to: to, // list of receivers
     subject: subject, // Subject line
-    html: html, // html body,
-    attachments: charts
+    html: html, // html body
   });
   return Promise.resolve();
 }

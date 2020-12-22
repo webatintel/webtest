@@ -2,13 +2,6 @@ const fs = require('fs');
 const os = require('os');
 const fsPromises = fs.promises;
 const path = require('path');
-const runSpeedometer2 = require('./workloads/speedometer2.js');
-const runWebXPRT3 = require('./workloads/webxprt3.js');
-const runWebXPRT2015 = require('./workloads/webxprt2015.js');
-const runUnity3D = require('./workloads/unity3d.js');
-const runJetStream2 = require('./workloads/jetstream2.js');
-const runAquarium = require('./workloads/aquarium.js');
-const runBasemark = require('./workloads/basemark.js');
 const runTensorflow = require('./workloads/tensorflow.js');
 const settings = require('../config.json');
 const Client = require('ssh2-sftp-client');
@@ -33,7 +26,7 @@ function sortScores(scoresArray, score, propertyName) {
 }
 
 /*
-* Run a workload several times and sort 
+* Run a workload several times and sort
 */
 async function runWorkload(workload, executor) {
   let originScoresArray = [];
@@ -213,7 +206,7 @@ async function pullRemoteResults() {
   return Promise.resolve();
 }
 /*
-* Run all the workloads defined in ../config.json and 
+* Run all the workloads defined in ../config.json and
 * generate the results to the ../results directory.
 * Return: an object like {
 *   'Speedometer2': 'path/to/json/file',

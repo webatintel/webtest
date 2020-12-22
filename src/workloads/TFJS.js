@@ -28,22 +28,22 @@ async function runTensorflowTest(workload, flags) {
   await page.goto(workload.url, { waitUntil: "networkidle" });
 
   const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
-  if (workload.name.indexOf('ResNet_Tensor') !== -1) {
+  if (workload.name.indexOf('ResNet_Tensor') > -1) {
     await modelsSelect.type('posenet_resNet_q4_s32_input224_tensor', {delay: 100});
-  } else if (workload.name.indexOf('ResNet_Image') !== -1) {
+  } else if (workload.name.indexOf('ResNet_Image') > -1) {
     await modelsSelect.type('posenet_resNet_q4_s32_input224_image', {delay: 100});
-  } else if (workload.name.indexOf('MobileNet_Tensor') !== -1) {
+  } else if (workload.name.indexOf('MobileNet_Tensor') > -1) {
     await modelsSelect.type('posenet_mobileNet_q2_m75_s16_input513_tensor', {delay: 100});
-  } else if (workload.name.indexOf('MobileNet_Image') !== -1) {
+  } else if (workload.name.indexOf('MobileNet_Image') > -1) {
     await modelsSelect.type('posenet_mobileNet_q2_m75_s16_input513_image', {delay: 100});
   }
 
   const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
-  if (workload.name.indexOf('WASM') !== -1) {
+  if (workload.name.indexOf('WASM') > -1) {
     await backendSelect.type('wasm', {delay: 100});
-  } else if (workload.name.indexOf('WebGL') !== -1) {
+  } else if (workload.name.indexOf('WebGL') > -1) {
     await backendSelect.type('webgl', {delay: 100});
-  } else if (workload.name.indexOf('WebGPU') !== -1) {
+  } else if (workload.name.indexOf('WebGPU') > -1) {
     await backendSelect.type('webgpu', {delay: 100});
   }
 

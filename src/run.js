@@ -2,7 +2,7 @@ const fs = require('fs');
 const os = require('os');
 const fsPromises = fs.promises;
 const path = require('path');
-const runTensorflow = require('./workloads/tensorflow.js');
+const runTFJS = require('./workloads/TFJS.js');
 const settings = require('../config.json');
 const Client = require('ssh2-sftp-client');
 
@@ -171,24 +171,44 @@ async function syncRemoteDirectory(workload, action) {
 *   ...
 * }
 */
-async function genWorkloadsResults(deviceInfo) {
+async function genWorkloadsResults(deviceInfo, target) {
 
   let results = {};
   let executors = {
-    'TensorFlow_WebGL_ResNet_Tensor': runTensorflow,
-    'TensorFlow_WebGL_ResNet_Image': runTensorflow,
-    'TensorFlow_WebGL_MobileNet_Tensor': runTensorflow,
-    'TensorFlow_WebGL_MobileNet_Image': runTensorflow,
-    'TensorFlow_WebGPU_ResNet_Tensor': runTensorflow,
-    'TensorFlow_WebGPU_ResNet_Image': runTensorflow,
-    'TensorFlow_WebGPU_MobileNet_Tensor': runTensorflow,
-    'TensorFlow_WebGPU_MobileNet_Image': runTensorflow,
-    'TensorFlow_WASM_ResNet_Tensor': runTensorflow,
-    'TensorFlow_WASM_ResNet_Image': runTensorflow,
-    'TensorFlow_WASM_MobileNet_Tensor': runTensorflow,
-    'TensorFlow_WASM_MobileNet_Image': runTensorflow,
+    'TFJS_WebGL_ResNet_Tensor': runTFJS,
+    'TFJS_WebGL_ResNet_Image': runTFJS,
+    'TFJS_WebGL_MobileNet_Tensor': runTFJS,
+    'TFJS_WebGL_MobileNet_Image': runTFJS,
+    'TFJS_WebGPU_ResNet_Tensor': runTFJS,
+    'TFJS_WebGPU_ResNet_Image': runTFJS,
+    'TFJS_WebGPU_MobileNet_Tensor': runTFJS,
+    'TFJS_WebGPU_MobileNet_Image': runTFJS,
+    'TFJS_WASM_ResNet_Tensor': runTFJS,
+    'TFJS_WASM_ResNet_Image': runTFJS,
+    'TFJS_WASM_MobileNet_Tensor': runTFJS,
+    'TFJS_WASM_MobileNet_Image': runTFJS,
   };
-  for (const workload of settings.workloads) {
+
+  if (target === undefined) {
+    target = '0-' + (settings.workloads.length - 1);
+  }
+  let indexes = [];
+  let fields = target.split(',');
+  for (field of fields) {
+    if (field.indexOf('-') > -1) {
+      for (let i = field.split('-')[0]; i <= field.split('-')[1]; i++) {
+        indexes.push(parseInt(i));
+      }
+    } else {
+      indexes.push(parseInt(field));
+    }
+  }
+
+  for (let i = 0; i < settings.workloads.length; i++) {
+    if (indexes.indexOf(i) < 0) {
+      continue;
+    }
+    let workload = settings.workloads[i];
     let executor = executors[workload.name];
     results[workload.name] = await genWorkloadResult(deviceInfo, workload, executor);
   }

@@ -18,6 +18,10 @@ const args = require('yargs')
     type: 'string',
     describe: 'email to',
   })
+  .option('target', {
+    type: 'string',
+    describe: 'index of workloads to run, e.g., 1-2,5,6',
+  })
   .option('update-chrome', {
     alias: 'u',
     type: 'boolean',
@@ -58,7 +62,7 @@ async function main() {
       subject = '[W' + weekAndDay + '] TFJS auto test report - ' + platform + ' - ' + deviceInfo["CPU"]["info"] + ' - ' + deviceInfo.Browser;
     console.log("Subject: ", subject);
 
-    const workloadResults = await runTest.genWorkloadsResults(deviceInfo);
+    const workloadResults = await runTest.genWorkloadsResults(deviceInfo, args.target);
 
     console.log(JSON.stringify(workloadResults, null, 4));
     const testReports = await genTestReport(workloadResults);

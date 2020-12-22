@@ -33,26 +33,27 @@ function drawRoundsResult(basedResult, buffer) {
   for (let i = 0; i < workloadLenth; i++) {
     basedResultCol += `<tr><td>${Object.keys(buffer)[i]}</td>`;
     let backendsResult = buffer[Object.keys(buffer)[i]];
-    let wasmValue = backendsResult.hasOwnProperty('wasm') ? backendsResult['wasm']['Total Score'].replace('ms', '') : 0;
-    let webglValue = backendsResult.hasOwnProperty('webgl') ? backendsResult['webgl']['Total Score'].replace('ms', '') : 0;
     let webgpuValue = backendsResult.hasOwnProperty('webgpu') ? backendsResult['webgpu']['Total Score'].replace('ms', '') : 0;
+    let webglValue = backendsResult.hasOwnProperty('webgl') ? backendsResult['webgl']['Total Score'].replace('ms', '') : 0;
+    let wasmValue = backendsResult.hasOwnProperty('wasm') ? backendsResult['wasm']['Total Score'].replace('ms', '') : 0;
 
-    style = webgpuValue < wasmValue ? goodStyle : badStyle;
-    let percent = '';
-    if (wasmValue !== 0 && webgpuValue !== 0) {
-      percent = parseFloat((wasmValue - webgpuValue) / wasmValue * 100).toFixed(2) + '%';
-    }
-    let wasmCol = `<td>${wasmValue} <span ${style}>${percent}</span></td>`;
+    let webgpuCol = `<td>${webgpuValue}</td>`;
 
     style = webgpuValue < webglValue ? goodStyle : badStyle;
-    percent = '';
+    let percent = '';
     if (webglValue !== 0 && webgpuValue !== 0) {
       percent = parseFloat((webglValue - webgpuValue) / webglValue * 100).toFixed(2) + '%';
     }
     let webglCol = `<td>${webglValue} <span ${style}>${percent}</span></td>`;
 
-    let webgpuCol = `<td>${webgpuValue}</td>`;
-    basedResultCol += wasmCol + webglCol + webgpuCol;
+    style = webgpuValue < wasmValue ? goodStyle : badStyle;
+    percent = '';
+    if (wasmValue !== 0 && webgpuValue !== 0) {
+      percent = parseFloat((wasmValue - webgpuValue) / wasmValue * 100).toFixed(2) + '%';
+    }
+    let wasmCol = `<td>${wasmValue} <span ${style}>${percent}</span></td>`;
+
+    basedResultCol += webgpuCol + webglCol + wasmCol;
   }
 
   const resultCol = basedResultCol + "</tr>";
@@ -137,10 +138,10 @@ async function genSingleTestReport(resultPaths) {
     }
 
     let modelName, backendName;
-    if (basedResult.workload.indexOf('MobileNet_Image') !== -1) modelName = 'MobileNet_Image';
-    if (basedResult.workload.indexOf('MobileNet_Tensor') !== -1) modelName = 'MobileNet_Tensor';
-    if (basedResult.workload.indexOf('ResNet_Image') !== -1) modelName = 'ResNet_Image';
-    if (basedResult.workload.indexOf('ResNet_Tensor') !== -1) modelName = 'ResNet_Tensor';
+    if (basedResult.workload.indexOf('MobileNet_Image') > -1) modelName = 'MobileNet_Image';
+    if (basedResult.workload.indexOf('MobileNet_Tensor') > -1) modelName = 'MobileNet_Tensor';
+    if (basedResult.workload.indexOf('ResNet_Image') > -1) modelName = 'ResNet_Image';
+    if (basedResult.workload.indexOf('ResNet_Tensor') > -1) modelName = 'ResNet_Tensor';
 
     if (buffer[modelName] === undefined) {
       buffer[modelName] = {};
@@ -154,7 +155,7 @@ async function genSingleTestReport(resultPaths) {
     console.log(`n is ${n}, length is ${length}`)
     if (n === length) {
       console.log(buffer);
-      roundsTable += "<tr><th>Workload</th><th>WASM (ms)</th><th>WebGL (ms)</th><th>WebGPU (ms)</th></tr>";
+      roundsTable += "<tr><th>Workload</th><th>WebGPU (ms)</th><th>WebGL (ms)</th><th>WASM (ms)</th></tr>";
       const resultTable = drawResultTable(basedResult);
       resultTables += `${resultTable}<br>`;
       roundsTable += drawRoundsResult(basedResult, buffer);

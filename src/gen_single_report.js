@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const fs = require('fs');
 const fsPromises = fs.promises;
@@ -12,7 +12,7 @@ let backends = [];
 
 function drawResultHeader(basedResult) {
   const roundlegth = basedResult.test_rounds.length;
-  const selectedStyle = "style='background-color: #4CAF50;'";
+  const selectedStyle = 'style="background-color: #4CAF50;"';
   let tableHeader = `<tr><th>${basedResult.workload}</th>`;
   for (let i = 0; i < roundlegth; i ++) {
     if (i === basedResult.selected_round)
@@ -25,17 +25,16 @@ function drawResultHeader(basedResult) {
 
 function drawRoundsResult(basedResult, buffer) {
   let workloadLenth = Object.keys(buffer).length;
-  const selectedStyle = "style='background-color: #4CAF50;'";
-  const goodStyle = "style='color:green'";
-  const badStyle = "style='color:red'";
+  const goodStyle = 'style="color:green"';
+  const badStyle = 'style="color:red"';
   let style = '';
   let basedResultCol = '';
   for (let i = 0; i < workloadLenth; i++) {
     basedResultCol += `<tr><td>${Object.keys(buffer)[i]}</td>`;
     let backendsResult = buffer[Object.keys(buffer)[i]];
-    let webgpuValue = backendsResult.hasOwnProperty('webgpu') ? backendsResult['webgpu']['Total Score'].replace('ms', '') : 0;
-    let webglValue = backendsResult.hasOwnProperty('webgl') ? backendsResult['webgl']['Total Score'].replace('ms', '') : 0;
-    let wasmValue = backendsResult.hasOwnProperty('wasm') ? backendsResult['wasm']['Total Score'].replace('ms', '') : 0;
+    let webgpuValue = backendsResult.hasOwnProperty('webgpu') ? parseFloat(backendsResult['webgpu']['Total Score'].replace('ms', '')) : 0;
+    let webglValue = backendsResult.hasOwnProperty('webgl') ? parseFloat(backendsResult['webgl']['Total Score'].replace('ms', '')) : 0;
+    let wasmValue = backendsResult.hasOwnProperty('wasm') ? parseFloat(backendsResult['wasm']['Total Score'].replace('ms', '')) : 0;
 
     let webgpuCol = `<td>${webgpuValue}</td>`;
 
@@ -44,45 +43,29 @@ function drawRoundsResult(basedResult, buffer) {
     if (webglValue !== 0 && webgpuValue !== 0) {
       percent = parseFloat((webglValue - webgpuValue) / webglValue * 100).toFixed(2) + '%';
     }
-    let webglCol = `<td>${webglValue} <span ${style}>${percent}</span></td>`;
+    let webglCol = `<td ${style}>${webglValue} (${percent})</td>`;
 
     style = webgpuValue < wasmValue ? goodStyle : badStyle;
     percent = '';
     if (wasmValue !== 0 && webgpuValue !== 0) {
       percent = parseFloat((wasmValue - webgpuValue) / wasmValue * 100).toFixed(2) + '%';
     }
-    let wasmCol = `<td>${wasmValue} <span ${style}>${percent}</span></td>`;
+    let wasmCol = `<td ${style}>${wasmValue} (${percent})</td>`;
 
-    basedResultCol += webgpuCol + webglCol + wasmCol;
+    basedResultCol += webgpuCol + webglCol + wasmCol + '</tr>';
   }
 
-  const resultCol = basedResultCol + "</tr>";
-  return resultCol;
-}
-
-function drawResultTable(basedResult) {
-  let resultTable = "<table>" + drawResultHeader(basedResult);
-
-  for (const key of Object.keys(basedResult.test_result)) {
-    const basedValue = basedResult.test_result[key];
-    // Draw resultTable
-    let valueCols = "";
-    for (const test_round of basedResult.test_rounds) {
-      valueCols += `<td>${test_round['scores'][key]}</td>`;
-    }
-    resultTable += `<tr><td>${key}</td>${valueCols}</tr>`;
-  }
-  return `${resultTable}</table>`;
+  return basedResultCol;
 }
 
 function drawDeviceInfoTable(basedResult) {
-  let deviceInfoTable = "<table>";
+  let deviceInfoTable = '<table>';
   const basedDeviceInfo = basedResult.device_info;
-  let header = `<tr><th>Category</th><th>${basedDeviceInfo["CPU"]["mfr"]}</th>`;
-  deviceInfoTable += header + "</tr>";
+  let header = `<tr><th>Category</th><th>${basedDeviceInfo['CPU']['mfr']}</th>`;
+  deviceInfoTable += header + '</tr>';
 
   for (const key in basedDeviceInfo) {
-    if (key === "CPU")
+    if (key === 'CPU')
       deviceInfoTable += `<tr><td>${key}</td><td>${basedDeviceInfo[key].info}</td></tr>`;
     else
       deviceInfoTable += `<tr><td>${key}</td><td>${basedDeviceInfo[key]}</td></tr>`;
@@ -114,10 +97,9 @@ async function getCommitId() {
 * @param: {Object}, resultPaths, an object reprensents for test result path
 */
 async function genSingleTestReport(resultPaths) {
-  console.log("********** Generate test report as html **********");
+  console.log('********** Generate test report as html **********');
   // Get test result table
-  let resultTables = "";
-  let roundsTable = "<table>";
+  let roundsTable = '<table><tr><th>Workload</th><th>WebGPU (ms)</th><th>WebGL (ms) (WebGPU vs. WebGL)</th><th>WASM (ms) (WebGPU vs. WASM)</th></tr>';
   let basedResult;
   let flag = false;
   let buffer = {};
@@ -134,7 +116,7 @@ async function genSingleTestReport(resultPaths) {
     } else {
       const rawData = await fsPromises.readFile(resultPath, 'utf-8');
       basedResult = JSON.parse(rawData);
-      console.log("based result: ", basedResult);
+      console.log('based result: ', basedResult);
     }
 
     let modelName, backendName;
@@ -149,39 +131,29 @@ async function genSingleTestReport(resultPaths) {
     backendName = basedResult.test_result.backend;
     if (buffer[modelName][backendName] === undefined) buffer[modelName][backendName] = {};
     buffer[modelName][backendName] = basedResult.test_rounds[basedResult.selected_round].scores;
-    n++;
-
-    // Draw result table
-    console.log(`n is ${n}, length is ${length}`)
-    if (n === length) {
-      console.log(buffer);
-      roundsTable += "<tr><th>Workload</th><th>WebGPU (ms)</th><th>WebGL (ms)</th><th>WASM (ms)</th></tr>";
-      const resultTable = drawResultTable(basedResult);
-      resultTables += `${resultTable}<br>`;
-      roundsTable += drawRoundsResult(basedResult, buffer);
-    }
   }
-  roundsTable += "</table><br><br>";
 
-  let workloadUrls = "<b>Workload Urls:</b> <br>";
-  workloadUrls += `    - <a href="${settings.workloads[0].url}">${settings.workloads[0].url}</a><br>`;
-  const chromePath = "<br><b>Chrome path: </b>" + settings.chrome_path;
-  const chromeFlags = "<br><b>Chrome flags: </b>" + basedResult.chrome_flags;
-  const commitIdHtml = "<br><b>TFJS repo commit id: </b>" + commitId;
+  roundsTable += drawRoundsResult(basedResult, buffer);
+  roundsTable += '</table><br>';
+
+  let workloadUrls = `<b>Workload Url:</b><a href='${settings.workloads[0].url}'>${settings.workloads[0].url}</a><br>`;
+  const chromePath = '<br><b>Chrome path: </b>' + settings.chrome_path;
+  const chromeFlags = '<br><b>Chrome flags: </b>' + basedResult.chrome_flags;
+  const commitIdHtml = '<br><b>TFJS repo commit id: </b>' + commitId;
 
   // Get device info table
   const deviceInfoTable = drawDeviceInfoTable(basedResult);
   // Define html style
-  const htmlStyle = "<style> \
+  const htmlStyle = '<style> \
 		* {font-family: Calibri (Body);} \
 	  table {border-collapse: collapse;} \
 	  table, td, th {border: 1px solid black;} \
 	  th {background-color: #0071c5; color: #ffffff; font-weight: normal;} \
-    </style>";
+    </style>';
 
   const html = htmlStyle + roundsTable
-    + "<br><br>" + workloadUrls + chromePath + chromeFlags + commitIdHtml + "<br><br><b>Device Info:</b>" + deviceInfoTable;
-  console.log("******Generate html to test.html******");
+      + '<br><br>' + workloadUrls + chromePath + chromeFlags + commitIdHtml + '<br><br><b>Device Info:</b>' + deviceInfoTable;
+  console.log('******Generate html to test.html******');
   await fsPromises.writeFile('./test.html', html);
   return Promise.resolve(html);
 }

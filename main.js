@@ -41,8 +41,9 @@ async function main() {
   //await browser.updateChrome();
   //await repo.updateTFJS();
 
-  let now = moment();
-  const weekAndDay = now.week() + '.' + now.day();
+  let d = new Date();
+  let timestamp = d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2)
+      + ('0' + d.getHours()).slice(-2) + ('0' + d.getMinutes()).slice(-2) + ('0' + d.getSeconds()).slice(-2);;
 
   let deviceInfo = {};
   let subject = "";
@@ -59,7 +60,7 @@ async function main() {
 
     deviceInfo = await genDeviceInfo();
     if (subject === "")
-      subject = '[W' + weekAndDay + '] TFJS auto test report - ' + platform + ' - ' + deviceInfo["CPU"]["info"] + ' - ' + deviceInfo.Browser;
+      subject = '[TFJS Test] ' + timestamp + ' - ' + platform + ' - ' + deviceInfo["CPU"]["info"] + ' - ' + deviceInfo.Browser;
     console.log("Subject: ", subject);
 
     const workloadResults = await runTest.genWorkloadsResults(deviceInfo, args.target);
@@ -74,7 +75,7 @@ async function main() {
   } catch (err) {
 
     console.log(err);
-    let subject = '[W' + weekAndDay + ']';
+    let subject = '[TFJS Test] ' + timestamp;
     if (!settings.dev_mode && err.message.includes('No new browser update')) {
       subject += 'Auto test cancelled on ' + platform + ' as no browser update';
     } else {

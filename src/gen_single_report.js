@@ -96,7 +96,7 @@ async function getCommitId() {
 * Generate test report as html
 * @param: {Object}, resultPaths, an object reprensents for test result path
 */
-async function genSingleTestReport(resultPaths) {
+async function genSingleTestReport(resultPaths, duration) {
   console.log('********** Generate report as test.html **********');
   // Get test result table
   let roundsTable = '<table><tr><th>Workload</th><th>WebGPU (ms)</th><th>WebGL (ms) (WebGPU vs. WebGL)</th><th>WASM (ms) (WebGPU vs. WASM)</th></tr>';
@@ -135,10 +135,11 @@ async function genSingleTestReport(resultPaths) {
   roundsTable += drawRoundsResult(basedResult, buffer);
   roundsTable += '</table><br>';
 
-  let workloadUrls = `<b>Workload Url: </b><a href='${settings.workloads[0].url}'>${settings.workloads[0].url}</a><br>`;
-  const chromePath = '<br><b>Chrome path: </b>' + settings.chrome_path;
-  const chromeFlags = '<br><b>Chrome flags: </b>' + basedResult.chrome_flags;
-  const commitIdHtml = '<br><b>TFJS repo commit id: </b>' + commitId;
+  const durationHtml = `<b>Duration: </b>${duration}<br>`;
+  const workloadUrls = `<b>Workload: </b><a href='${settings.workloads[0].url}'>${settings.workloads[0].url}</a><br>`;
+  const chromePath = `<b>Chrome path: </b>${settings.chrome_path}<br>`;
+  const chromeFlags = `<b>Chrome flags: </b>${basedResult.chrome_flags}<br>`;
+  const commitIdHtml = `<b>TFJS repo commit id: </b>${commitId}`
 
   // Get device info table
   const deviceInfoTable = drawDeviceInfoTable(basedResult);
@@ -151,7 +152,7 @@ async function genSingleTestReport(resultPaths) {
     </style>';
 
   const html = htmlStyle + roundsTable
-      + '<br><br>' + workloadUrls + chromePath + chromeFlags + commitIdHtml + '<br><br><b>Device Info:</b>' + deviceInfoTable;
+      + '<br>' + durationHtml + workloadUrls + chromePath + chromeFlags + commitIdHtml + '<br><br><b>Device Info:</b>' + deviceInfoTable;
   await fsPromises.writeFile('./test.html', html);
   return Promise.resolve(html);
 }

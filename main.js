@@ -37,13 +37,23 @@ const args = require('yargs')
 const cpuModel = os.cpus()[0].model;
 const platform = runTest.getPlatformName();
 
+const duration = (start, end) => {
+  let diff = Math.abs(start - end);
+  const hours = Math.floor(diff / 3600000);
+  diff -= hours * 3600000;
+  const minutes = Math.floor(diff / 60000);
+  diff -= minutes * 60000;
+  const seconds = Math.floor(diff / 1000);
+  return `${hours}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}`;
+};
+
 async function main() {
   //await browser.updateChrome();
   //await repo.updateTFJS();
 
-  let d = new Date();
-  let timestamp = d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2)
-      + ('0' + d.getHours()).slice(-2) + ('0' + d.getMinutes()).slice(-2) + ('0' + d.getSeconds()).slice(-2);;
+  let startTime = new Date();
+  let timestamp = startTime.getFullYear() + ('0' + (startTime.getMonth() + 1)).slice(-2) + ('0' + startTime.getDate()).slice(-2)
+      + ('0' + startTime .getHours()).slice(-2) + ('0' + startTime.getMinutes()).slice(-2) + ('0' + startTime .getSeconds()).slice(-2);;
 
   let deviceInfo = {};
   let subject = "";
@@ -63,7 +73,8 @@ async function main() {
       subject = '[TFJS Test] ' + timestamp + ' - ' + platform + ' - ' + deviceInfo["CPU"]["info"] + ' - ' + deviceInfo.Browser;
 
     const workloadResults = await runTest.genWorkloadsResults(deviceInfo, args.target);
-    const testReports = await genTestReport(workloadResults);
+    let endTime = new Date();
+    const testReports = await genTestReport(workloadResults, duration(startTime, endTime));
 
     if ('email' in args)
       await sendMail(args['email'], subject, testReports);

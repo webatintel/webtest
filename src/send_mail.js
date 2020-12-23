@@ -25,10 +25,10 @@ async function sendMail(to, subject, html) {
 
   // Verify transporter is avaliable
   transporter.verify(error => {
-    if(error)
+    if (error)
       console.error("transporter error: ", error);
     else
-      console.log('server is ready to take our messages!');
+      console.log('Email was sent!');
   });
 
   // send mail with defined transport object

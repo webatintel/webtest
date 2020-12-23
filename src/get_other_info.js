@@ -11,7 +11,6 @@ const si = require('systeminformation');
 * Get information of gpu driver version and browser version
 */
 async function getOtherInfo() {
-  console.log('********** Get other device info **********');
   platformBrowser.configChromePath(settings);
   const chromePath = settings.chrome_path;
   const userDataDir = path.join(process.cwd(), 'userData');
@@ -33,7 +32,6 @@ async function getOtherInfo() {
   let browserName = await browserNameElem.evaluate(element => element.innerText);
   const browserRevElem = await page.$('#inner > tbody > tr:nth-child(2) > td.version');
   let browserRev = await browserRevElem.evaluate(element => element.innerText);
-  console.log(browserRev);
 
  if (browserName.includes('Chromium')) {
     browserName = 'Chromium';
@@ -42,7 +40,6 @@ async function getOtherInfo() {
   }
   const versionElement = await page.$('#version');
   const versionInfo = await versionElement.evaluate(element => element.innerText);
-  console.log(versionInfo);
 
   const os = await si.osInfo();
   let osArch = os.arch === 'x64' ? '64-bit': '32-bit';
@@ -68,13 +65,8 @@ async function getOtherInfo() {
   if (browserName === "Chromium") {
     chromeVersion = browserName + '-' + versionInfo.split(' ')[0];
   }
-  console.log('********** Chrome version **********');
-  console.log(chromeVersion);
-  console.log('********** Chrome Rev **********');
-  console.log(versionInfo);
-  
+
   // Get GPU driver version
-  console.log('********** GPU driver version **********');
   await page.goto('chrome://gpu');
   const gpuDriverVersion = await page.evaluate(() => {
     let table = document.querySelector('#basic-info').querySelector('#info-view-table');
@@ -87,7 +79,6 @@ async function getOtherInfo() {
   });
   if (gpuDriverVersion === '')
     console.error("Error: Cann't get GPU Driver version!");
-  console.log(gpuDriverVersion);
 
   const screenRes = await page.evaluate(() => {
     const screenResX = window.screen.width;

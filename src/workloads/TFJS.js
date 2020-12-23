@@ -10,7 +10,6 @@ async function runTensorflowTest(workload, flags) {
     args = args.concat(flags);
   }
   platformBrowser.configChromePath(settings);
-  console.log(`********** Start running ${workload.name} tests **********`);
   const userDataDir = path.join(process.cwd(), 'userData');
   if (!fs.existsSync(userDataDir)) {
     fs.mkdirSync(userDataDir);
@@ -23,7 +22,6 @@ async function runTensorflowTest(workload, flags) {
     args: args
   });
   const page = await browser.newPage();
-  console.log(`********** Going to URL: ${workload.url} **********`);
   browser.setDefaultNavigationTimeout( 3 * 60 * 1000 );
   await page.goto(workload.url, { waitUntil: "networkidle" });
 
@@ -48,7 +46,6 @@ async function runTensorflowTest(workload, flags) {
   }
 
   await page.waitForTimeout(3 * 1000);
-  console.log(`********** Running ${workload.name} tests... **********`);
   // A quick rule-of-thumb is to count the number of await's or then's
   // happening in your code and if there's more than one then you're
   // probably better off running the code inside a page.evaluate call.
@@ -64,14 +61,12 @@ async function runTensorflowTest(workload, flags) {
   });
   // Waits for result elements
   await page.waitForSelector('#timings > tbody > tr:nth-child(8) > td:nth-child(2)', { timeout: 10 * 60 * 1000 });
-  console.log(`********** Running ${workload.name} tests completed **********`);
 
-  const scoreElem = await page.$('#timings > tbody > tr:nth-child(8) > td:nth-child(2)');
-  const score = await scoreElem.evaluate(element => element.textContent);
-  let scores = {};
-  console.log(`********** ${workload.name} tests score: **********`);
-  console.log(`********** ${score}  **********`);
-  scores['Total Score'] = score;
+  const resultElem = await page.$('#timings > tbody > tr:nth-child(8) > td:nth-child(2)');
+  const result = await resultElem.evaluate(element => element.textContent);
+  let results = {};
+  console.log(`Result: ${result}`);
+  results['Total Score'] = result;
 
   const resultBody = await page.$('#timings > tbody');
   const resultLength = await resultBody.evaluate(element => element.rows.length);
@@ -82,17 +77,17 @@ async function runTensorflowTest(workload, flags) {
     const valueElem = await page.$(valueSelector);
     const type = await typeElem.evaluate(element => element.innerText);
     const value = await valueElem.evaluate(element => element.innerText);
-    scores[type] = value;
+    results[type] = value;
   }
 
-  console.log('********** Detailed scores: **********');
-  console.log(scores);
+  //console.log('********** Detailed results: **********');
+  //console.log(results);
 
   await browser.close();
 
   return Promise.resolve({
     date: Date(),
-    scores: scores
+    results: results
   });
 }
 

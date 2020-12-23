@@ -61,14 +61,9 @@ async function main() {
     deviceInfo = await genDeviceInfo();
     if (subject === "")
       subject = '[TFJS Test] ' + timestamp + ' - ' + platform + ' - ' + deviceInfo["CPU"]["info"] + ' - ' + deviceInfo.Browser;
-    console.log("Subject: ", subject);
 
     const workloadResults = await runTest.genWorkloadsResults(deviceInfo, args.target);
-
-    console.log(JSON.stringify(workloadResults, null, 4));
     const testReports = await genTestReport(workloadResults);
-
-    console.log(subject);
 
     if ('email' in args)
       await sendMail(args['email'], subject, testReports);
@@ -82,7 +77,6 @@ async function main() {
       subject += 'Auto test failed on ' + platform + '-' + cpuModel;
     }
 
-    console.log(subject);
     if ('email' in args)
       await sendMail(args['email'], subject, err);
   }

@@ -39,14 +39,14 @@ function drawRoundsResult(basedResult, buffer) {
     let webgpuCol = `<td>${webgpuValue}</td>`;
 
     style = webgpuValue < webglValue ? goodStyle : badStyle;
-    let percent = '';
+    let percent = 'NA';
     if (webglValue !== 0 && webgpuValue !== 0) {
       percent = parseFloat((webglValue - webgpuValue) / webglValue * 100).toFixed(2) + '%';
     }
     let webglCol = `<td ${style}>${webglValue} (${percent})</td>`;
 
     style = webgpuValue < wasmValue ? goodStyle : badStyle;
-    percent = '';
+    percent = 'NA';
     if (wasmValue !== 0 && webgpuValue !== 0) {
       percent = parseFloat((wasmValue - webgpuValue) / wasmValue * 100).toFixed(2) + '%';
     }
@@ -97,7 +97,7 @@ async function getCommitId() {
 * @param: {Object}, resultPaths, an object reprensents for test result path
 */
 async function genSingleTestReport(resultPaths) {
-  console.log('********** Generate test report as html **********');
+  console.log('********** Generate report as test.html **********');
   // Get test result table
   let roundsTable = '<table><tr><th>Workload</th><th>WebGPU (ms)</th><th>WebGL (ms) (WebGPU vs. WebGL)</th><th>WASM (ms) (WebGPU vs. WASM)</th></tr>';
   let basedResult;
@@ -116,7 +116,6 @@ async function genSingleTestReport(resultPaths) {
     } else {
       const rawData = await fsPromises.readFile(resultPath, 'utf-8');
       basedResult = JSON.parse(rawData);
-      console.log('based result: ', basedResult);
     }
 
     let modelName, backendName;
@@ -130,13 +129,13 @@ async function genSingleTestReport(resultPaths) {
     }
     backendName = basedResult.test_result.backend;
     if (buffer[modelName][backendName] === undefined) buffer[modelName][backendName] = {};
-    buffer[modelName][backendName] = basedResult.test_rounds[basedResult.selected_round].scores;
+    buffer[modelName][backendName] = basedResult.test_rounds[basedResult.selected_round].results;
   }
 
   roundsTable += drawRoundsResult(basedResult, buffer);
   roundsTable += '</table><br>';
 
-  let workloadUrls = `<b>Workload Url:</b><a href='${settings.workloads[0].url}'>${settings.workloads[0].url}</a><br>`;
+  let workloadUrls = `<b>Workload Url: </b><a href='${settings.workloads[0].url}'>${settings.workloads[0].url}</a><br>`;
   const chromePath = '<br><b>Chrome path: </b>' + settings.chrome_path;
   const chromeFlags = '<br><b>Chrome flags: </b>' + basedResult.chrome_flags;
   const commitIdHtml = '<br><b>TFJS repo commit id: </b>' + commitId;
@@ -153,7 +152,6 @@ async function genSingleTestReport(resultPaths) {
 
   const html = htmlStyle + roundsTable
       + '<br><br>' + workloadUrls + chromePath + chromeFlags + commitIdHtml + '<br><br><b>Device Info:</b>' + deviceInfoTable;
-  console.log('******Generate html to test.html******');
   await fsPromises.writeFile('./test.html', html);
   return Promise.resolve(html);
 }

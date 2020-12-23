@@ -19,7 +19,7 @@ The automation test mainly takes the following actions:
 * Choose the middle value among the test arounds and store the device information and all the results of this workload test
   to `./results/{platform}/{workload}` directory(If it does not exists, create it). The files are named as `{data}_{CPU}_{Browser}.json`.
 * Before storing the test results to json files, download the test results of competitor from remote server. Then we can compare the
-  scores to the ones from compettitor. After storing the results, upload this test results to remote server for backup.
+  results to the ones from compettitor. After storing the results, upload this test results to remote server for backup.
 * Download the trend charts for each workload and put them on the `./charts` directory(If it does not exists, create it).
 * Generate html report that contains the comparison tables based on the json files. The comparison will base on the paris in
   `cpu_list.json`. The trend charts are insert into the html.

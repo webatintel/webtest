@@ -40,7 +40,7 @@ async function runWorkload(workload, executor) {
     await new Promise(resolve => setTimeout(resolve, workload.sleep_interval * 1000)); // sleep for a while before next time running
   }
 
-  sortScores(scoresArray, 'scores', 'Total Score');
+  sortScores(scoresArray, 'results', 'Total Result');
   const middleIndex = Math.round((workload.run_times - 1) / 2);
 
   let selectedRound = -1;
@@ -91,13 +91,12 @@ async function genWorkloadResult(deviceInfo, workload, executor) {
   let jsonData = {
     'workload': workload.name,
     'device_info': deviceInfo,
-    'test_result': results.middle_score.scores,
+    'test_result': results.middle_score.results,
     'selected_round': results.selected_round,
     'test_rounds': results.detailed_scores,
     'chrome_flags': settings.chrome_flags,
     'execution_date': results.middle_score.date
   }
-  console.log(JSON.stringify(jsonData, null, 4));
 
   let jsonFilename = await storeTestData(deviceInfo, workload, jsonData);
   // if (!settings.dev_mode) {
@@ -189,8 +188,9 @@ async function genWorkloadsResults(deviceInfo, target) {
     'TFJS_WASM_MobileNet_Image': runTFJS,
   };
 
+  let workloads_length = settings.workloads.length
   if (target === undefined) {
-    target = '0-' + (settings.workloads.length - 1);
+    target = '0-' + (workloads_length - 1);
   }
   let indexes = [];
   let fields = target.split(',');
@@ -204,18 +204,21 @@ async function genWorkloadsResults(deviceInfo, target) {
     }
   }
 
-  for (let i = 0; i < settings.workloads.length; i++) {
+  console.log('********** Began to run workloads **********');
+  for (let i = 0; i < workloads_length; i++) {
+    let workload = settings.workloads[i];
+    console.log(`[${i + 1}/${workloads_length}] ${workload.name}`)
     if (indexes.indexOf(i) < 0) {
+      console.log('Skipped')
       continue;
     }
-    let workload = settings.workloads[i];
+
     let executor = executors[workload.name];
     results[workload.name] = await genWorkloadResult(deviceInfo, workload, executor);
   }
 
   return Promise.resolve(results);
 }
-
 
 module.exports = {
   getPlatformName: getPlatformName,

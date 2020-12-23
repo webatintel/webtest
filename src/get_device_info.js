@@ -15,7 +15,6 @@ async function getDeviceInfo() {
   const gpuDriverVersion = otherInfo.gpuDriverVersion;
   const screenRes = otherInfo.ScreenResolution;
 
-  console.log('********** Get all device info **********');
   // Get GPU info
   const gpuData = await si.graphics();
   let gpuModel = 'Unknown GPU';
@@ -107,6 +106,7 @@ async function getDeviceInfo() {
     "Browser": chromeVersion,
     "BrowserRev": chromRev
   };
+  console.log('********** device info **********');
   console.log(deviceInfo);
 
   return Promise.resolve(deviceInfo);

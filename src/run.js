@@ -194,9 +194,10 @@ async function genWorkloadsResults(deviceInfo, target) {
   }
   let indexes = [];
   let fields = target.split(',');
+
   for (field of fields) {
     if (field.indexOf('-') > -1) {
-      for (let i = field.split('-')[0]; i <= field.split('-')[1]; i++) {
+      for (let i = parseInt(field.split('-')[0]); i <= parseInt(field.split('-')[1]); i++) {
         indexes.push(parseInt(i));
       }
     } else {

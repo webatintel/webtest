@@ -49,7 +49,7 @@ async function getDeviceInfo() {
   } else {
     cpuCodeName = 'Unknown CPU Codename';
   }
-  const cpuInfo = { mfr: mfr, "info": cpuCodeName + " " + cpuBrand, "codename": cpuCodeName, "brand": cpuBrand };
+  const cpuInfo = { mfr: mfr, "info": cpuBrand, "codename": cpuCodeName, "brand": cpuBrand };
 
   // Get memory info
   const memData = await si.mem();

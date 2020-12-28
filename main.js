@@ -18,6 +18,11 @@ const args = require('yargs')
     type: 'string',
     describe: 'email to',
   })
+  .option('repeat', {
+    type: 'number',
+    describe: 'repeat times',
+    default: 1,
+  })
   .option('target', {
     type: 'string',
     describe: 'index of workloads to run, e.g., 1-2,5,6',
@@ -48,48 +53,32 @@ const duration = (start, end) => {
 };
 
 async function main() {
-  //await browser.updateChrome();
-  //await repo.updateTFJS();
+  let deviceInfo = await genDeviceInfo();
+  for (let i = 0; i < args['repeat']; i++) {
+    try {
+      let startTime = new Date();
+      let timestamp = startTime.getFullYear() + ('0' + (startTime.getMonth() + 1)).slice(-2) + ('0' + startTime.getDate()).slice(-2)
+          + ('0' + startTime .getHours()).slice(-2) + ('0' + startTime.getMinutes()).slice(-2) + ('0' + startTime .getSeconds()).slice(-2);
+      console.log(`== Test round ${i + 1}/${args['repeat']} at ${timestamp} ==`);
+      let subject = '[TFJS Test] ' + timestamp + ' - ' + platform + ' - ' + deviceInfo["CPU"]["info"] + ' - ' + deviceInfo.Browser;
+      const workloadResults = await runTest.genWorkloadsResults(deviceInfo, args.target, timestamp);
+      let endTime = new Date();
+      const testReports = await genTestReport(workloadResults, duration(startTime, endTime), timestamp);
 
-  let startTime = new Date();
-  let timestamp = startTime.getFullYear() + ('0' + (startTime.getMonth() + 1)).slice(-2) + ('0' + startTime.getDate()).slice(-2)
-      + ('0' + startTime .getHours()).slice(-2) + ('0' + startTime.getMinutes()).slice(-2) + ('0' + startTime .getSeconds()).slice(-2);;
-
-  let deviceInfo = {};
-  let subject = "";
-  try {
-    if (settings["chromium_builder"]["enable_chromium_build"]) {
-      const commitId = settings["chromium_builder"]["commit_id"];
-      if (commitId !== "") {
-        subject = `Web auto test report on ${platform} with commit id: ${commitId}`;
-        await GetChromiumBuild(commitId);
+      if ('email' in args)
+        await sendMail(args['email'], subject, testReports);
+    } catch (err) {
+      console.log(err);
+      let subject = '[TFJS Test] ' + timestamp;
+      if (!settings.dev_mode && err.message.includes('No new browser update')) {
+        subject += 'Auto test cancelled on ' + platform + ' as no browser update';
       } else {
-        throw Error("Commit id should be specific in config.json if you run with chromium build");
+        subject += 'Auto test failed on ' + platform + '-' + cpuModel;
       }
+
+      if ('email' in args)
+        await sendMail(args['email'], subject, err);
     }
-
-    deviceInfo = await genDeviceInfo();
-    if (subject === "")
-      subject = '[TFJS Test] ' + timestamp + ' - ' + platform + ' - ' + deviceInfo["CPU"]["info"] + ' - ' + deviceInfo.Browser;
-
-    const workloadResults = await runTest.genWorkloadsResults(deviceInfo, args.target);
-    let endTime = new Date();
-    const testReports = await genTestReport(workloadResults, duration(startTime, endTime));
-
-    if ('email' in args)
-      await sendMail(args['email'], subject, testReports);
-  } catch (err) {
-
-    console.log(err);
-    let subject = '[TFJS Test] ' + timestamp;
-    if (!settings.dev_mode && err.message.includes('No new browser update')) {
-      subject += 'Auto test cancelled on ' + platform + ' as no browser update';
-    } else {
-      subject += 'Auto test failed on ' + platform + '-' + cpuModel;
-    }
-
-    if ('email' in args)
-      await sendMail(args['email'], subject, err);
   }
 }
 
@@ -117,9 +106,5 @@ if (settings.enable_cron) {
 
   settings.chrome_flags = ["--enable-unsafe-webgpu", "--enable-dawn-features=disable_robustness",
     "--enable-features=WebAssemblySimd,WebAssemblyThreads"];
-  // main().then(() => {
-  //   settings.chrome_flags = ["--enable-unsafe-webgpu", "--enable-features=WebAssemblySimd,WebAssemblyThreads"];
-  //   main();
-  // });
   main();
 }

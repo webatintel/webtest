@@ -105,7 +105,7 @@ async function getDeviceInfo() {
     "Browser": chromeVersion,
     "BrowserRev": chromRev
   };
-  console.log('********** device info **********');
+  console.log('== device info ==');
   console.log(deviceInfo);
 
   return Promise.resolve(deviceInfo);

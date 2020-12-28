@@ -1,5 +1,5 @@
 {
-  "name": "webpnp-test-automation",
+  "name": "webtest",
   "version": "1.0.0",
   "description": "This is a test automation framework based on [Playwright](https://github.com/microsoft/playwright), supports key Web workloads automation testing on Chrome browser across multiple platforms, as well as automatically generating test result and sending test report via mail.",
   "main": "index.js",
@@ -8,15 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/qiuzhong/webpnp-test-automation.git"
+    "url": "git+https://github.com/webatintel/webtest.git"
   },
   "keywords": [],
-  "author": "Wanming Lin",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/qiuzhong/webpnp-test-automation/issues"
+    "url": "https://github.com/webatintel/webtest/issues"
   },
-  "homepage": "https://github.com/qiuzhong/webpnp-test-automation#readme",
+  "homepage": "https://github.com/webatintel/webtest#readme",
   "dependencies": {
     "7zip-min": "^1.1.2",
     "axios": "^0.19.2",

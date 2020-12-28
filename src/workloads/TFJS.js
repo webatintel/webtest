@@ -10,7 +10,7 @@ async function runTensorflowTest(workload, flags) {
     args = args.concat(flags);
   }
   platformBrowser.configChromePath(settings);
-  const userDataDir = path.join(process.cwd(), 'userData');
+  const userDataDir = path.join(process.cwd(), 'out', 'userData');
   if (!fs.existsSync(userDataDir)) {
     fs.mkdirSync(userDataDir);
   }

@@ -1,6 +1,4 @@
 node_modules/
-results/
-userData/
+out/
 
 package-lock.json
-test.html

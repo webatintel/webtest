@@ -96,8 +96,8 @@ async function getCommitId() {
 * Generate test report as html
 * @param: {Object}, resultPaths, an object reprensents for test result path
 */
-async function genSingleTestReport(resultPaths, duration) {
-  console.log('********** Generate report as test.html **********');
+async function genSingleTestReport(resultPaths, duration, timestamp) {
+  console.log('== Generate report ==');
   // Get test result table
   let roundsTable = '<table><tr><th>Workload</th><th>WebGPU (ms)</th><th>WebGL (ms) (WebGPU vs. WebGL)</th><th>WASM (ms) (WebGPU vs. WASM)</th></tr>';
   let basedResult;
@@ -153,7 +153,7 @@ async function genSingleTestReport(resultPaths, duration) {
 
   const html = htmlStyle + roundsTable
       + '<br>' + durationHtml + workloadUrls + chromePath + chromeFlags + commitIdHtml + '<br><br><b>Device Info:</b>' + deviceInfoTable;
-  await fsPromises.writeFile('./test.html', html);
+  await fsPromises.writeFile(path.join('out', timestamp, 'report.html'), html);
   return Promise.resolve(html);
 }
 

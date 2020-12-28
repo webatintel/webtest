@@ -13,7 +13,7 @@ const si = require('systeminformation');
 async function getOtherInfo() {
   platformBrowser.configChromePath(settings);
   const chromePath = settings.chrome_path;
-  const userDataDir = path.join(process.cwd(), 'userData');
+  const userDataDir = path.join(process.cwd(), 'out', 'userData');
   if (!fs.existsSync(userDataDir)) {
     fs.mkdirSync(userDataDir);
   }

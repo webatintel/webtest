@@ -60,8 +60,8 @@ async function runWorkload(workload, executor) {
 *   Generate a JSON file to store this test result
 *   Return: The absolute pathname of the JSON file
 */
-async function storeTestData(deviceInfo, workload, jsonData) {
-  let testResultsDir = path.join(process.cwd(), 'results', getPlatformName(), workload.name);
+async function storeTestData(deviceInfo, workload, jsonData, timestamp) {
+  let testResultsDir = path.join(process.cwd(), 'out', timestamp, workload.name);
   if (!fs.existsSync(testResultsDir)) {
     fs.mkdirSync(testResultsDir, {recursive: true});
   }
@@ -83,7 +83,7 @@ async function storeTestData(deviceInfo, workload, jsonData) {
 * Return: The absolute path name of the JSON file.
 */
 
-async function genWorkloadResult(deviceInfo, workload, executor) {
+async function genWorkloadResult(deviceInfo, workload, executor, timestamp) {
   // if (!settings.dev_mode) {
   //   await syncRemoteDirectory(workload, 'pull');
   // }
@@ -98,7 +98,7 @@ async function genWorkloadResult(deviceInfo, workload, executor) {
     'execution_date': results.middle_score.date
   }
 
-  let jsonFilename = await storeTestData(deviceInfo, workload, jsonData);
+  let jsonFilename = await storeTestData(deviceInfo, workload, jsonData, timestamp);
   // if (!settings.dev_mode) {
   //   await syncRemoteDirectory(workload, 'push');
   // }
@@ -170,7 +170,7 @@ async function syncRemoteDirectory(workload, action) {
 *   ...
 * }
 */
-async function genWorkloadsResults(deviceInfo, target) {
+async function genWorkloadsResults(deviceInfo, target, timestamp) {
 
   let results = {};
   let executors = {
@@ -205,7 +205,7 @@ async function genWorkloadsResults(deviceInfo, target) {
     }
   }
 
-  console.log('********** Began to run workloads **********');
+  console.log('== Begin to run workloads ==');
   for (let i = 0; i < workloads_length; i++) {
     let workload = settings.workloads[i];
     console.log(`[${i + 1}/${workloads_length}] ${workload.name}`)
@@ -215,7 +215,7 @@ async function genWorkloadsResults(deviceInfo, target) {
     }
 
     let executor = executors[workload.name];
-    results[workload.name] = await genWorkloadResult(deviceInfo, workload, executor);
+    results[workload.name] = await genWorkloadResult(deviceInfo, workload, executor, timestamp);
   }
 
   return Promise.resolve(results);

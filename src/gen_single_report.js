@@ -97,8 +97,6 @@ async function getCommitId() {
 * @param: {Object}, resultPaths, an object reprensents for test result path
 */
 async function genSingleTestReport(resultPaths, duration, timestamp) {
-  console.log('== Generate report ==');
-  // Get test result table
   let roundsTable = '<table><tr><th>Workload</th><th>WebGPU (ms)</th><th>WebGL (ms) (WebGPU vs. WebGL)</th><th>WASM (ms) (WebGPU vs. WASM)</th></tr>';
   let basedResult;
   let flag = false;

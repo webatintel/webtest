@@ -205,7 +205,6 @@ async function genWorkloadsResults(deviceInfo, target, timestamp) {
     }
   }
 
-  console.log('== Begin to run workloads ==');
   for (let i = 0; i < workloads_length; i++) {
     let workload = settings.workloads[i];
     console.log(`[${i + 1}/${workloads_length}] ${workload.name}`)

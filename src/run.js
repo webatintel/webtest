@@ -11,8 +11,10 @@ function getPlatformName() {
 
   if (platform === 'win32') {
     return 'windows';
+  } else if (platform === 'darwin') {
+    return 'macOS';
   } else {
-    return 'linux';
+    return platform;
   }
 }
 

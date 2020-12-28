@@ -39,7 +39,8 @@ async function getOtherInfo() {
     browserName = 'Chrome';
   }
   const versionElement = await page.$('#version');
-  const versionInfo = await versionElement.evaluate(element => element.innerText);
+  let versionInfo = await versionElement.evaluate(element => element.innerText);
+  versionInfo = versionInfo.replace('x86_64', '64-bit');
 
   const os = await si.osInfo();
   let osArch = os.arch === 'x64' ? '64-bit': '32-bit';

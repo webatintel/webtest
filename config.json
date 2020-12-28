@@ -75,6 +75,7 @@
   ],
   "win_chrome_path": "LOCALAPPDATA\\Google\\Chrome SxS\\Application\\chrome.exe",
   "linux_chrome_path": "/usr/bin/google-chrome-unstable",
+  "darwin_chrome_path": "/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary",
   "chrome_flags": ["--enable-unsafe-webgpu"],
   "update_browser_sched": "0 0 0 * * 0,1,2,3,4,5,6",
   "intel_test_cadence": "0 0 1 * * 0,1,2,3,4,5,6",

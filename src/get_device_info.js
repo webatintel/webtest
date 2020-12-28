@@ -36,7 +36,7 @@ async function getDeviceInfo() {
     if (cpuBrand in cpuList["Intel"])
       cpuCodeName = cpuList["Intel"][cpuBrand]["codename"];
     else
-      return Promise.reject(`Error: does not found matched Intel CPU info: (${cpuBrand}) in cpu_list.json`);
+      cpuCodeName = 'Unknown Intel CPU Codename';
   // AMD CPU
   } else if ((cpuManufacturer + cpuBrand).includes("AMD")) {
     mfr = "AMD";
@@ -45,10 +45,9 @@ async function getDeviceInfo() {
     if(cpuBrand in cpuList["AMD"])
       cpuCodeName = cpuList["AMD"][cpuBrand]["codename"];
     else
-      return Promise.reject(`Error: does not found matched Intel CPU info: (${cpuBrand}) in cpu_list.json`);
+      cpuCodeName = 'Unknown AMD CPU Codename';
   } else {
-    // Reject other CPU
-    return Promise.reject(`Error: unknown CPU brand: ${cpuBrand}`);
+    cpuCodeName = 'Unknown CPU Codename';
   }
   const cpuInfo = { mfr: mfr, "info": cpuCodeName + " " + cpuBrand, "codename": cpuCodeName, "brand": cpuBrand };
 

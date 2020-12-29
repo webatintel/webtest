@@ -9,6 +9,8 @@ const settings = require('./config.json');
 const cron = require('node-cron');
 const moment = require('moment');
 const os = require('os');
+const path = require('path');
+const fs = require('fs');
 const GetChromiumBuild = require('./src/get_chromium_build.js');
 
 const args = require('yargs')
@@ -53,6 +55,10 @@ const duration = (start, end) => {
 };
 
 async function main() {
+  const outDir = path.join(process.cwd(), 'out');
+  if (!fs.existsSync(outDir)) {
+    fs.mkdirSync(outDir);
+  }
   let deviceInfo = await genDeviceInfo();
   for (let i = 0; i < args['repeat']; i++) {
     try {

@@ -12,7 +12,7 @@ async function runTensorflowTest(workload, flags) {
   platformBrowser.configChromePath(settings);
   const userDataDir = path.join(process.cwd(), 'out', 'userData');
   if (!fs.existsSync(userDataDir)) {
-    fs.mkdirSync(userDataDir);
+    fs.mkdirSync(userDataDir, {recursive: true});
   }
   const browser = await chromium.launchPersistentContext(userDataDir, {
     headless: false,

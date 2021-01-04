@@ -14,13 +14,10 @@ async function sendMail(to, subject, html) {
 
   // Create reusable transporter object
   let transporter = nodemailer.createTransport({
-    host: "smtp.intel.com",
+    host: "ecsmtp.sh.intel.com",
     port: 25,
     secure: false,
-    auth: {
-      user: "",
-      pass: "",
-    },
+    auth: false,
   });
 
   // Verify transporter is avaliable

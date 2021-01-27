@@ -33,7 +33,7 @@ async function runTensorflowTest(workload, flags) {
     await modelsSelect.type('posenet_mobileNet_q2_m75_s16_input513_image', {delay: 100});
   }
 
-  const backendSelect = await page.$('#gui > ul > li:nth-child(3) > div > ul > li.cr.string > div > div > select');
+  const backendSelect = await page.$('#gui > ul > li:nth-child(4) > div > ul > li.cr.string > div > div > select');
   if (workload.name.indexOf('WASM') > -1) {
     await backendSelect.type('wasm', {delay: 100});
   } else if (workload.name.indexOf('WebGL') > -1) {
@@ -52,7 +52,7 @@ async function runTensorflowTest(workload, flags) {
   // parsing (since it's all backed by WebSockets) it still is taking up
   // time that could better be spent doing something else.
   await page.evaluate(async () => {
-    const runButton = document.querySelector('#gui > ul > li:nth-child(4) > div > span');
+    const runButton = document.querySelector('#gui > ul > li:nth-child(5) > div > span');
     runButton.click();
     await new Promise(resolve => setTimeout(resolve, 30 * 1000));
   });

@@ -68,7 +68,7 @@ async function runWorkload(workload, executor) {
  */
 async function storeTestData(deviceInfo, workload, jsonData, timestamp) {
   let testResultsDir =
-      path.join(process.cwd(), 'out', timestamp, workload.name);
+      path.join(process.cwd(), 'out', timestamp, workload.benchmark);
   if (!fs.existsSync(testResultsDir)) {
     fs.mkdirSync(testResultsDir, {recursive: true});
   }
@@ -121,8 +121,8 @@ async function genWorkloadResult(
  * Sync local test results directory with the one in remote server.
  */
 async function syncRemoteDirectory(workload, action) {
-  let testResultsDir =
-      path.join(process.cwd(), 'results', getPlatformName(), workload.name);
+  let testResultsDir = path.join(
+      process.cwd(), 'results', getPlatformName(), workload.benchmark);
   if (!fs.existsSync(testResultsDir)) {
     fs.mkdirSync(testResultsDir, {recursive: true});
   }
@@ -137,7 +137,7 @@ async function syncRemoteDirectory(workload, action) {
   let currentPlatform = getPlatformName();
   let remoteResultDir =
       `/home/${settings.result_server.username}/webpnp/results/${
-          currentPlatform}/${workload.name}`;
+          currentPlatform}/${workload.benchmark}`;
   let sftp = new Client();
   try {
     await sftp.connect(serverConfig);
@@ -223,7 +223,7 @@ async function genWorkloadsResults(deviceInfo, target, timestamp) {
 
   for (let i = 0; i < workloads_length; i++) {
     let workload = settings.workloads[i];
-    console.log(`[${i + 1}/${workloads_length}] ${workload.name}`)
+    console.log(`[${i + 1}/${workloads_length}] ${workload.benchmark}`)
     if (indexes.indexOf(i) < 0) {
       console.log('Skipped')
       continue;
@@ -283,10 +283,12 @@ async function runURL(
   workload.url = baseURL + warmupRunsStr + benchmarkStr + backendStr +
       architectureStr + inputSizeStr;
   var workLoadName = null;
+  // TODO: consider architecture is null.
   if (inputSize != 0) {
-    workLoadName = backend + '_' + workload.name + '_' + inputSize.toString();
+    workLoadName = backend + '_' + workload.benchmark + '_' + architecture +
+        '_' + inputSize.toString();
   } else {
-    workLoadName = backend + '_' + workload.name;
+    workLoadName = backend + '_' + workload.benchmark + '_' + architecture;
   }
   if (workLoadName == null) console.error('URL parameter error!');
   console.log(workLoadName);

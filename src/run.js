@@ -179,6 +179,20 @@ async function syncRemoteDirectory(workload, action) {
   return Promise.resolve(testResultsDir);
 }
 
+function cartesianProduct(arr, results, deviceInfo, timestamp, workload) {
+  return arr.reduce(function(a, b) {
+    return a
+        .map(function(x) {
+          return b.map(function(y) {
+            return x.concat([y]);
+          })
+        })
+        .reduce(function(a, b) {
+          return a.concat(b)
+        }, [])
+  }, [[]])
+}
+
 /*
  * Run all the workloads defined in ../config.json and
  * generate the results to the ../results directory.
@@ -214,56 +228,70 @@ async function genWorkloadsResults(deviceInfo, target, timestamp) {
       console.log('Skipped')
       continue;
     }
+
+    // Default use wasm and webgl.
     if (workload.backends == null) {
       workload.backends = ['wasm', 'webgl'];
-      console.log('workload.backends=' + workload.backends);
+      console.warn('backends is undefined!');
     }
-    var warmupRuns = '?warmup=2&run=5';
-    var benchmarkStr = '';
-    if (workload.benchmark != null && workload.inputSize != null) {
-      benchmarkStr = '&benchmark=' + workload.benchmark;
-      console.log(workload.benchmark + ': ' + workload.inputSizes);
-    } else {
-      console.log('Undefined benchmark or inputSize, use default');
+
+    if (workload.architectures == null) {
+      workload.architectures = [''];
+      console.warn('architectures is undefined!');
     }
     if (workload.inputSizes == null) {
-      await runForBackends(
-          deviceInfo, timestamp, workload, warmupRuns + benchmarkStr, 0,
-          results);
-    } else {
-      for (var j = 0; j < workload.inputSizes.length; j++) {
-        const inputSize = workload.inputSizes[j];
-        const inputSizeStr = '&inputSize=' + inputSize;
-        if (inputSize === 1024 || inputSize === 2.0)
-          warmupRuns = '?warmup=1&run=2';
-        await runForBackends(
-            deviceInfo, timestamp, workload,
-            warmupRuns + benchmarkStr + inputSizeStr, inputSize, results);
-      }
+      workload.inputSizes = [''];
+      console.warn('inputSizes is undefined!');
+    }
+    // This only works when both architectures and inputSizes are defined.
+    const allTests = cartesianProduct(
+        [workload.backends, workload.architectures, workload.inputSizes],
+        results, deviceInfo, timestamp, workload);
+
+
+    for (let [backend, architecture, inputSize] of allTests) {
+      await runURL(
+          results, deviceInfo, timestamp, workload, backend, architecture,
+          inputSize);
     }
   }
 
   return Promise.resolve(results);
 }
 
-async function runForBackends(
-    deviceInfo, timestamp, workload, prefix, inputSize, results) {
-  const baseURL = 'http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/';
-  for (var k = 0; k < workload.backends.length; k++) {
-    const backend = workload.backends[k];
-    const backendStr = '&backend=' + backend;
-    workload.url = baseURL + prefix + backendStr;
-    var workLoadName = null;
-    if (inputSize != 0) {
-      workLoadName = backend + '_' + workload.name + '_' + inputSize.toString();
-    } else {
-      workLoadName = backend + '_' + workload.name;
-    }
-    if (workLoadName == null) console.error('URL parameter error!');
-    console.log(workLoadName);
-    results[workLoadName] = await genWorkloadResult(
-        deviceInfo, workLoadName, workload, runTFJS, timestamp);
+async function runURL(
+    results, deviceInfo, timestamp, workload, backend, architecture,
+    inputSize) {
+  const baseURL =
+      'http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/';
+  const warmupRunsStr = '?warmup=2&run=5';
+  const backendStr = '&backend=' + backend;
+  let architectureStr = '';
+  if (architecture != null && architecture != '')
+    architectureStr = '&architecture=' + architecture;
+  let inputSizeStr = '';
+  if (inputSize != null && inputSize != '')
+    inputSizeStr = '&inputSize=' + inputSize;
+
+  var benchmarkStr = '';
+  if (workload.benchmark != null && workload.inputSizes != null) {
+    benchmarkStr = '&benchmark=' + workload.benchmark;
+  } else {
+    console.log('Undefined benchmark or inputSize, use default');
   }
+
+  workload.url = baseURL + warmupRunsStr + benchmarkStr + backendStr +
+      architectureStr + inputSizeStr;
+  var workLoadName = null;
+  if (inputSize != 0) {
+    workLoadName = backend + '_' + workload.name + '_' + inputSize.toString();
+  } else {
+    workLoadName = backend + '_' + workload.name;
+  }
+  if (workLoadName == null) console.error('URL parameter error!');
+  console.log(workLoadName);
+  results[workLoadName] = await genWorkloadResult(
+      deviceInfo, workLoadName, workload, runTFJS, timestamp);
 }
 
 module.exports = {

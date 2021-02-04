@@ -262,14 +262,15 @@ async function genWorkloadsResults(deviceInfo, target, timestamp) {
 async function runURL(
     results, deviceInfo, timestamp, workload, backend, architecture,
     inputSize) {
+  // Generate work load URL.
   const baseURL =
       'http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/';
   const warmupRunsStr = '?warmup=2&run=5';
   const backendStr = '&backend=' + backend;
-  let architectureStr = '';
+  var architectureStr = '';
   if (architecture != null && architecture != '')
     architectureStr = '&architecture=' + architecture;
-  let inputSizeStr = '';
+  var inputSizeStr = '';
   if (inputSize != null && inputSize != '')
     inputSizeStr = '&inputSize=' + inputSize;
 
@@ -282,14 +283,19 @@ async function runURL(
 
   workload.url = baseURL + warmupRunsStr + benchmarkStr + backendStr +
       architectureStr + inputSizeStr;
+
+  // Generate work load name.
   var workLoadName = null;
-  // TODO: consider architecture is null.
-  if (inputSize != 0) {
-    workLoadName = backend + '_' + workload.benchmark + '_' + architecture +
-        '_' + inputSize.toString();
-  } else {
-    workLoadName = backend + '_' + workload.benchmark + '_' + architecture;
+  var architectureNameStr = '';
+  if (architecture != null && architecture != '') {
+    architectureNameStr = '_' + architecture;
   }
+  var inputSizeNameStr = '';
+  if (inputSize != 0) {
+    inputSizeNameStr = '_' + inputSize.toString();
+  }
+  workLoadName = backend + '_' + workload.benchmark + architectureNameStr +
+      inputSizeNameStr;
   if (workLoadName == null) console.error('URL parameter error!');
   console.log(workLoadName);
   results[workLoadName] = await genWorkloadResult(

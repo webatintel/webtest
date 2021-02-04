@@ -1,14 +1,12 @@
 {
   "workloads": [
     {
-      "name": "mobilenet_v2",
       "benchmark": "mobilenet_v2",
       "backends": ["wasm", "webgl"],
       "run_times": 1,
       "sleep_interval": 0
     },
     {
-      "name": "posenet_mobilenet_tensor",
       "benchmark": "posenet",
       "backends": ["wasm", "webgl"],
       "architectures": ["MobileNetV1", "ResNet50"],
@@ -17,12 +15,11 @@
       "sleep_interval": 0
     },
     {
-      "name": "bodypix_mobilenet_tensor",
       "benchmark": "bodypix",
-      "run_times": 1,
       "backends": ["wasm", "webgl"],
       "architectures": ["MobileNetV1", "ResNet50"],
       "inputSizes": [0.25, 0.5],
+      "run_times": 1,
       "sleep_interval": 0
     }
   ],

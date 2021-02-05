@@ -17,6 +17,7 @@ async function getOtherInfo() {
   const browser = await chromium.launchPersistentContext(userDataDir, {
     headless: false,
     executablePath: chromePath,
+    chromiumSandbox:true,
     viewport: null,
     args: ["--start-maximized"]
   });

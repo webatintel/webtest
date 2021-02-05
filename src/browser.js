@@ -88,6 +88,7 @@ async function updateWinChrome() {
     console.log('********** Getting chrome version before update **********');
     let browser = await chromium.launch({
       headless: false,
+      chromiumSandbox:true,
       executablePath: settings.chrome_path,
     });
     let page = await browser.newPage();
@@ -105,6 +106,7 @@ async function updateWinChrome() {
     console.log('********** Getting chrome version after update **********');
     browser = await chromium.launch({
       headless: false,
+      chromiumSandbox:true,
       executablePath: settings.chrome_path,
     });
     page = await browser.newPage();

@@ -265,7 +265,10 @@ async function runURL(
   // Generate work load URL.
   const baseURL =
       'http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/';
-  const warmupRunsStr = '?warmup=2&run=5';
+  var warmupRunsStr = '?warmup=50&run=50';
+  // wasm can get stable results with small warmup and run.
+  if (backend == 'wasm') warmupRunsStr = '?warmup=2&run=10';
+
   const backendStr = '&backend=' + backend;
   var architectureStr = '';
   if (architecture != null && architecture != '')

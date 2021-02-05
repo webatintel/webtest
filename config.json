@@ -11,6 +11,7 @@
       "backends": ["wasm", "webgl", "webgpu"],
       "architectures": ["MobileNetV1", "ResNet50"],
       "inputSizes": [128, 257, 512, 1024],
+      "inputTypes": ["image", "tensor"],
       "run_times": 1,
       "sleep_interval": 0
     },
@@ -19,6 +20,7 @@
       "backends": ["wasm", "webgl"],
       "architectures": ["MobileNetV1", "ResNet50"],
       "inputSizes": [0.25, 0.5, 0.75, 1.0],
+      "inputTypes": ["image", "tensor"],
       "run_times": 1,
       "sleep_interval": 0
     }

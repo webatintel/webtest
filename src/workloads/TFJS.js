@@ -14,6 +14,7 @@ async function runTensorflowTest(workload, flags) {
   const browser = await chromium.launchPersistentContext(userDataDir, {
     headless: false,
     executablePath: settings.chrome_path,
+    chromiumSandbox:true,
     viewport: null,
     ignoreHTTPSErrors: true,
     args: args

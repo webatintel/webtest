@@ -243,16 +243,23 @@ async function genWorkloadsResults(deviceInfo, target, timestamp) {
       workload.inputSizes = [''];
       console.warn('inputSizes is undefined!');
     }
+
+    if (workload.inputTypes == null) {
+      workload.inputTypes = [''];
+      console.warn('inputTypes is undefined!');
+    }
     // This only works when both architectures and inputSizes are defined.
     const allTests = cartesianProduct(
-        [workload.backends, workload.architectures, workload.inputSizes],
+        [
+          workload.backends, workload.architectures, workload.inputTypes,
+          workload.inputSizes
+        ],
         results, deviceInfo, timestamp, workload);
 
-
-    for (let [backend, architecture, inputSize] of allTests) {
+    for (let [backend, architecture, inputType, inputSize] of allTests) {
       await runURL(
           results, deviceInfo, timestamp, workload, backend, architecture,
-          inputSize);
+          inputType, inputSize);
     }
   }
 
@@ -260,14 +267,13 @@ async function genWorkloadsResults(deviceInfo, target, timestamp) {
 }
 
 async function runURL(
-    results, deviceInfo, timestamp, workload, backend, architecture,
+    results, deviceInfo, timestamp, workload, backend, architecture, inputType,
     inputSize) {
   // Generate work load URL.
-  const baseURL =
-      'http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/';
+  const baseURL = 'http://wp-27.sh.intel.com/workspace/server/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/';
   var warmupRunsStr = '?warmup=50&run=50';
   // wasm can get stable results with small warmup and run.
-  if (backend == 'wasm') warmupRunsStr = '?warmup=2&run=10';
+  if (backend == 'wasm') warmupRunsStr = '?warmup=2&run=5';
 
   const backendStr = '&backend=' + backend;
   var architectureStr = '';
@@ -276,6 +282,9 @@ async function runURL(
   var inputSizeStr = '';
   if (inputSize != null && inputSize != '')
     inputSizeStr = '&inputSize=' + inputSize;
+  var inputTypeStr = '';
+  if (inputType != null && inputType != '')
+    inputTypeStr = '&inputType=' + inputType;
 
   var benchmarkStr = '';
   if (workload.benchmark != null && workload.inputSizes != null) {
@@ -285,7 +294,7 @@ async function runURL(
   }
 
   workload.url = baseURL + warmupRunsStr + benchmarkStr + backendStr +
-      architectureStr + inputSizeStr;
+      architectureStr + inputTypeStr+ inputSizeStr;
 
   // Generate work load name.
   var workLoadName = null;
@@ -297,8 +306,13 @@ async function runURL(
   if (inputSize != 0) {
     inputSizeNameStr = '_' + inputSize.toString();
   }
+  var inputTypeNameStr = '';
+  if (inputType != null && inputType != '') {
+    inputTypeNameStr = '_' + inputType.toString();
+  }
+
   workLoadName = backend + '_' + workload.benchmark + architectureNameStr +
-      inputSizeNameStr;
+      inputTypeNameStr + inputSizeNameStr;
   if (workLoadName == null) console.error('URL parameter error!');
   console.log(workLoadName);
   results[workLoadName] = await genWorkloadResult(

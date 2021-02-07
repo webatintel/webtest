@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
 const path = require('path');
-const nodemailer = require("nodemailer");
+const nodemailer = require('nodemailer');
 const settings = require('./config.json');
 
 /*
@@ -10,11 +10,11 @@ const settings = require('./config.json');
 * @param {String}, html, uses html document to repensent mail content
 */
 async function sendMail(to, subject, html) {
-  let from = "webgraphics@intel.com";
+  let from = 'webgraphics@intel.com';
 
   // Create reusable transporter object
   let transporter = nodemailer.createTransport({
-    host: "ecsmtp.sh.intel.com",
+    host: 'ecsmtp.sh.intel.com',
     port: 25,
     secure: false,
     auth: false,
@@ -23,7 +23,7 @@ async function sendMail(to, subject, html) {
   // Verify transporter is avaliable
   transporter.verify(error => {
     if (error)
-      console.error("transporter error: ", error);
+      console.error('transporter error: ', error);
     else
       console.log('Email was sent!');
   });

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const genDeviceInfo = require('./get_device_info.js');
 const runTest = require('./run.js');
@@ -63,7 +63,7 @@ async function main() {
       let timestamp = startTime.getFullYear() + ('0' + (startTime.getMonth() + 1)).slice(-2) + ('0' + startTime.getDate()).slice(-2)
           + ('0' + startTime .getHours()).slice(-2) + ('0' + startTime.getMinutes()).slice(-2) + ('0' + startTime .getSeconds()).slice(-2);
       console.log(`== Test round ${i + 1}/${args['repeat']} at ${timestamp} ==`);
-      let subject = '[TFJS Test] ' + timestamp + ' - ' + platform + ' - ' + deviceInfo["CPU"]["info"] + ' - ' + deviceInfo.Browser;
+      let subject = '[TFJS Test] ' + timestamp + ' - ' + platform + ' - ' + deviceInfo['CPU']['info'] + ' - ' + deviceInfo.Browser;
       const workloadResults = await runTest.genWorkloadsResults(deviceInfo, args.target, timestamp);
       let endTime = new Date();
       const testReports = await genTestReport(workloadResults, duration(startTime, endTime), timestamp);
@@ -92,10 +92,10 @@ if (settings.enable_cron) {
   });
   if (cpuModel.includes('Intel')) {
     cron.schedule(settings.intel_test_cadence, async () => {
-      settings.chrome_flags = ["--enable-unsafe-webgpu", "--enable-dawn-features=disable_robustness",
-    "--enable-features=WebAssemblySimd,WebAssemblyThreads"];
+      settings.chrome_flags = ['--enable-unsafe-webgpu', '--enable-dawn-features=disable_robustness',
+    '--enable-features=WebAssemblySimd,WebAssemblyThreads'];
       await main();
-      // settings.chrome_flags = ["--enable-unsafe-webgpu","--enable-features=WebAssemblySimd,WebAssemblyThreads"];
+      // settings.chrome_flags = ['--enable-unsafe-webgpu','--enable-features=WebAssemblySimd,WebAssemblyThreads'];
       // await main();
     });
   } else {
@@ -107,7 +107,7 @@ if (settings.enable_cron) {
   if ('update-chrome' in args)
     browser.updateChrome();
 
-  settings.chrome_flags = ["--enable-unsafe-webgpu", "--enable-dawn-features=disable_robustness",
-    "--enable-features=WebAssemblySimd,WebAssemblyThreads"];
+  settings.chrome_flags = ['--enable-unsafe-webgpu', '--enable-dawn-features=disable_robustness',
+    '--enable-features=WebAssemblySimd,WebAssemblyThreads'];
   main();
 }

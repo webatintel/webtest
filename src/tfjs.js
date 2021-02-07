@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 
 async function runTensorflowTest(workload, flags) {
-  let args = ["--start-maximized"];
+  let args = ['--start-maximized'];
   if (flags !== undefined) {
     args = args.concat(flags);
   }
@@ -20,7 +20,7 @@ async function runTensorflowTest(workload, flags) {
   });
   const page = await browser.newPage();
   browser.setDefaultNavigationTimeout( 3 * 60 * 1000 );
-  await page.goto(workload.url, { waitUntil: "networkidle" });
+  await page.goto(workload.url, { waitUntil: 'networkidle' });
 
   const modelsSelect = await page.$('#gui > ul > li:nth-child(1) > div > ul > li.cr.string > div > div > select');
   if (workload.name.indexOf('ResNet_Tensor') > -1) {

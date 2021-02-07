@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const settings = require('./config.json');
 const platformBrowser = require('./browser.js');
@@ -18,7 +18,7 @@ async function getOtherInfo() {
     headless: false,
     executablePath: chromePath,
     viewport: null,
-    args: ["--start-maximized"]
+    args: ['--start-maximized']
   });
 
   const page = await browser.newPage();
@@ -44,7 +44,7 @@ async function getOtherInfo() {
   // Some device's default language is Chinese
   let chineseOsArch = os.arch === 'x64' ? '64 位': '32 位';
   if (!(versionInfo.includes(osArch) || versionInfo.includes(chineseOsArch))) {
-    return Promise.reject("Error: Arches mismatch between Chrome and test system!");
+    return Promise.reject('Error: Arches mismatch between Chrome and test system!');
   }
   let chromeChannel = '';
   if (versionInfo.includes('Stable')) {
@@ -60,7 +60,7 @@ async function getOtherInfo() {
     chromeChannel = 'Stable';
   }
   let chromeVersion = browserName + '-' + chromeChannel + '-' + versionInfo.split(' ')[0];
-  if (browserName === "Chromium") {
+  if (browserName === 'Chromium') {
     chromeVersion = browserName + '-' + versionInfo.split(' ')[0];
   }
 
@@ -76,22 +76,22 @@ async function getOtherInfo() {
     return '';
   });
   if (gpuDriverVersion === '')
-    console.error("Error: Cann't get GPU Driver version!");
+    console.error('Error: Cannot get GPU Driver version!');
 
   const screenRes = await page.evaluate(() => {
     const screenResX = window.screen.width;
     const screenResY = window.screen.height;
     const scaleRatio = window.devicePixelRatio;
-    return screenResX * scaleRatio + " x " + screenResY * scaleRatio;
+    return screenResX * scaleRatio + ' x ' + screenResY * scaleRatio;
   });
 
   await browser.close(); // A bug here, await close() method will hang and never been resolved.
 
   const otherInfo = {
-    "chromeVersion": chromeVersion,
-    "chromeRev": browserRev,
-    "gpuDriverVersion": gpuDriverVersion,
-    "ScreenResolution": screenRes
+    'chromeVersion': chromeVersion,
+    'chromeRev': browserRev,
+    'gpuDriverVersion': gpuDriverVersion,
+    'ScreenResolution': screenRes
   };
 
  return Promise.resolve(otherInfo);

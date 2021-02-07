@@ -1,32 +1,10 @@
 {
   "name": "webtest",
   "version": "1.0.0",
-  "description": "This is a test automation framework based on [Playwright](https://github.com/microsoft/playwright), supports key Web workloads automation testing on Chrome browser across multiple platforms, as well as automatically generating test result and sending test report via mail.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/webatintel/webtest.git"
-  },
-  "keywords": [],
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/webatintel/webtest/issues"
-  },
-  "homepage": "https://github.com/webatintel/webtest#readme",
+  "description": "TFJS e2e automation test",
   "dependencies": {
-    "7zip-min": "^1.1.2",
-    "axios": "^0.19.2",
-    "excel4node": "^1.7.2",
-    "moment": "^2.26.0",
-    "node-cron": "^2.0.3",
     "nodemailer": "^6.4.6",
     "playwright-chromium": "^1.2.1",
-    "puppeteer-core": "^5.1.0",
-    "ssh2-promise": "^0.1.7",
-    "ssh2-sftp-client": "^5.1.2",
     "systeminformation": "^4.26.4",
     "yargs": "^16.2.0"
   }

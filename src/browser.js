@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const child = require('child_process');
 const { chromium } = require('playwright-chromium');
-const settings = require('../config.json');
+const settings = require('./config.json');
 
 
 function configChromePath(setting) {

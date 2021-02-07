@@ -5,7 +5,7 @@ const fsPromises = fs.promises;
 const path = require('path');
 const os = require('os');
 const { table } = require('console');
-const settings = require('../config.json');
+const settings = require('./config.json');
 const http = require('http');
 let backends = [];
 // const sendMail = require('./send_mail.js');
@@ -61,7 +61,7 @@ function drawRoundsResult(basedResult, buffer) {
 function drawDeviceInfoTable(basedResult) {
   let deviceInfoTable = '<table>';
   const basedDeviceInfo = basedResult.device_info;
-  let header = `<tr><th>Category</th><th>${basedDeviceInfo['CPU']['mfr']}</th>`;
+  let header = `<tr><th>Category</th><th>Info</th>`;
   deviceInfoTable += header + '</tr>';
 
   for (const key in basedDeviceInfo) {

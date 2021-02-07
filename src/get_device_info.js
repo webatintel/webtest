@@ -2,7 +2,6 @@
 
 const si = require('systeminformation');
 const getOtherInfo = require('./get_other_info.js');
-const cpuList = require('../cpu_list.json');
 const { exec } = require("child_process");
 
 /*
@@ -26,30 +25,18 @@ async function getDeviceInfo() {
 
   // Get CPU info
   const cpuData = await si.cpu();
-  let cpuCodeName = "", mfr = "";
+  let cpuCodeName = ""
   let cpuBrand = cpuData.brand;
   const cpuManufacturer = cpuData.manufacturer;
   // Intel CPU
   if ((cpuManufacturer + cpuBrand).includes("Intel")) {
-    mfr = "Intel";
     cpuBrand = cpuBrand.split(" ").pop();
-    if (cpuBrand in cpuList["Intel"])
-      cpuCodeName = cpuList["Intel"][cpuBrand]["codename"];
-    else
-      cpuCodeName = 'Unknown Intel CPU Codename';
   // AMD CPU
   } else if ((cpuManufacturer + cpuBrand).includes("AMD")) {
-    mfr = "AMD";
     // Trim the brand name, e.g. Ryzen 7 4700U with Radeon Graphics -> Ryzen 7 4700U
     cpuBrand = cpuBrand.split(" ").slice(0, 3).join(" ");
-    if(cpuBrand in cpuList["AMD"])
-      cpuCodeName = cpuList["AMD"][cpuBrand]["codename"];
-    else
-      cpuCodeName = 'Unknown AMD CPU Codename';
-  } else {
-    cpuCodeName = 'Unknown CPU Codename';
   }
-  const cpuInfo = { mfr: mfr, "info": cpuBrand, "codename": cpuCodeName, "brand": cpuBrand };
+  const cpuInfo = { cpuBrand, "brand": cpuBrand };
 
   // Get memory info
   const memData = await si.mem();

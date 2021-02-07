@@ -2,9 +2,8 @@ const fs = require('fs');
 const os = require('os');
 const fsPromises = fs.promises;
 const path = require('path');
-const runTFJS = require('./workloads/TFJS.js');
-const settings = require('../config.json');
-const Client = require('ssh2-sftp-client');
+const runTFJS = require('./tfjs.js');
+const settings = require('./config.json');
 
 function getPlatformName() {
   let platform = os.platform();
@@ -63,12 +62,12 @@ async function runWorkload(workload, executor) {
 *   Return: The absolute pathname of the JSON file
 */
 async function storeTestData(deviceInfo, workload, jsonData, timestamp) {
-  let testResultsDir = path.join(process.cwd(), 'out', timestamp, workload.name);
+  let testResultsDir = path.join(process.cwd(), '../out', timestamp, workload.name);
   if (!fs.existsSync(testResultsDir)) {
     fs.mkdirSync(testResultsDir, {recursive: true});
   }
 
-  let cpuInfo = [deviceInfo['CPU']['mfr'], deviceInfo['CPU']['info'].replace(/\s/g, '-')].join('-');
+  let cpuInfo = deviceInfo['CPU']['info'].replace(/\s/g, '-');
   let date = new Date();
   let isoDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
   let jsonDate = isoDate.toISOString().split('.')[0].replace(/T|-|:/g, '');
@@ -86,9 +85,6 @@ async function storeTestData(deviceInfo, workload, jsonData, timestamp) {
 */
 
 async function genWorkloadResult(deviceInfo, workload, executor, timestamp) {
-  // if (!settings.dev_mode) {
-  //   await syncRemoteDirectory(workload, 'pull');
-  // }
   let results = await runWorkload(workload, executor);
   let jsonData = {
     'workload': workload.name,
@@ -101,67 +97,7 @@ async function genWorkloadResult(deviceInfo, workload, executor, timestamp) {
   }
 
   let jsonFilename = await storeTestData(deviceInfo, workload, jsonData, timestamp);
-  // if (!settings.dev_mode) {
-  //   await syncRemoteDirectory(workload, 'push');
-  // }
   return Promise.resolve(jsonFilename);
-}
-
-/*
-* Sync local test results directory with the one in remote server.
-*/
-async function syncRemoteDirectory(workload, action) {
-  let testResultsDir = path.join(process.cwd(), 'results', getPlatformName(), workload.name);
-  if (!fs.existsSync(testResultsDir)) {
-    fs.mkdirSync(testResultsDir, {recursive: true});
-  }
-  let localResultFiles = await fsPromises.readdir(testResultsDir);
-
-  const serverConfig = {
-    host: settings.result_server.host,
-    username: settings.result_server.username,
-    password: settings.result_server.password
-  };
-
-  let currentPlatform = getPlatformName();
-  let remoteResultDir = `/home/${settings.result_server.username}/webpnp/results/${currentPlatform}/${workload.name}`;
-  let sftp = new Client();
-  try {
-    await sftp.connect(serverConfig);
-    let remoteResultDirExist = await sftp.exists(remoteResultDir);
-    if (!remoteResultDirExist) {
-      await sftp.mkdir(remoteResultDir, true);
-    }
-
-    let remoteResultFiles = await sftp.list(remoteResultDir);
-
-    if (action === 'pull') {
-      for (let remoteFile of remoteResultFiles) {
-        if (!fs.existsSync(path.join(testResultsDir, remoteFile.name))) {
-          console.log(`Downloading remote file: ${remoteFile.name}...`);
-          await sftp.fastGet(remoteResultDir + '/' + remoteFile.name,
-                            path.join(testResultsDir, remoteFile.name));
-          console.log(`Remote file: ${remoteFile.name} downloaded.`);
-        }
-      }
-    } else if (action === 'push') {
-      for (let localFile of localResultFiles) {
-        let absRemoteFilename = remoteResultDir + `/${localFile}`;
-        let remoteFileExist = await sftp.exists(absRemoteFilename);
-        if (!remoteFileExist) {
-          console.log(`Uploading local file: ${localFile}`);
-          await sftp.fastPut(path.join(testResultsDir, localFile), absRemoteFilename);
-          console.log(`${localFile} uploaded to remote server.`);
-        }
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  } finally {
-    await sftp.end();
-  }
-
-  return Promise.resolve(testResultsDir);
 }
 
 /*

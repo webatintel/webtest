@@ -1,6 +1,6 @@
 "use strict";
 
-const settings = require('../config.json');
+const settings = require('./config.json');
 const platformBrowser = require('./browser.js');
 const { chromium } = require('playwright-chromium');
 const path = require('path');
@@ -13,7 +13,7 @@ const si = require('systeminformation');
 async function getOtherInfo() {
   platformBrowser.configChromePath(settings);
   const chromePath = settings.chrome_path;
-  const userDataDir = path.join(process.cwd(), 'out', 'userData');
+  const userDataDir = path.join(process.cwd(), '../out', 'userData');
   const browser = await chromium.launchPersistentContext(userDataDir, {
     headless: false,
     executablePath: chromePath,

@@ -76,22 +76,5 @@
   "win_chrome_path": "LOCALAPPDATA\\Google\\Chrome SxS\\Application\\chrome.exe",
   "linux_chrome_path": "/usr/bin/google-chrome-unstable",
   "darwin_chrome_path": "/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary",
-  "chrome_flags": ["--enable-unsafe-webgpu"],
-  "update_browser_sched": "0 0 0 * * 0,1,2,3,4,5,6",
-  "intel_test_cadence": "0 0 1 * * 0,1,2,3,4,5,6",
-  "amd_test_cadence": "0 0 1 * * Sat",
-  "enable_cron": false,
-  "result_server": {
-    "host": "10.239.115.92",
-    "username": "banana",
-    "password": "000"
-  },
-  "chrome_linux_password": "",
-  "dev_mode": true,
-  "chromium_builder": {
-    "enable_chromium_build": false,
-    "commit_id": "",
-    "host": "10.239.61.100",
-    "port": "8790"
-  }
+  "chrome_flags": ["--enable-unsafe-webgpu"]
 }

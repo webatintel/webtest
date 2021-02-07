@@ -1,5 +1,5 @@
-const settings = require('../../config.json');
-const platformBrowser = require('../browser.js');
+const settings = require('./config.json');
+const platformBrowser = require('./browser.js');
 const { chromium } = require('playwright-chromium');
 const path = require('path');
 const fs = require('fs');
@@ -10,7 +10,7 @@ async function runTensorflowTest(workload, flags) {
     args = args.concat(flags);
   }
   platformBrowser.configChromePath(settings);
-  const userDataDir = path.join(process.cwd(), 'out', 'userData');
+  const userDataDir = path.join(process.cwd(), '../out', 'userData');
   const browser = await chromium.launchPersistentContext(userDataDir, {
     headless: false,
     executablePath: settings.chrome_path,

@@ -2,7 +2,7 @@
 
 const path = require('path');
 const nodemailer = require("nodemailer");
-const settings = require('../config.json');
+const settings = require('./config.json');
 
 /*
 * Send mail to corresponding mail list

@@ -1,4 +1,4 @@
-const { chromium } = require('playwright-chromium');
+const {chromium} = require('playwright-chromium');
 const fs = require('fs');
 const fsPromises = fs.promises;
 const path = require('path');
@@ -14,17 +14,20 @@ async function getAllFlags() {
   let descList = [];
   let platformList = [];
   let statusList = [];
-  const browser = await chromium.launch({
-    headless: false,
-    executablePath: settings.chrome_path
-  });
+  const browser = await chromium.launch(
+      {headless: false, executablePath: settings.chrome_path});
   const page = await browser.newPage();
-  await page.goto("chrome://flags");
-  const flagElements = await page.$$('#tab-content-available > div > div.experiment > div.experiment-default.flex-container > div.flex > a');
-  const nameElements = await page.$$('#tab-content-available > div > div.experiment > div.experiment-default.flex-container > div.flex > h3.experiment-name');
-  const descElements = await page.$$('#tab-content-available > div > div.experiment > div.experiment-default.flex-container > div.flex > p > span:nth-child(odd)');
-  const platformElements = await page.$$('#tab-content-available > div > div.experiment > div.experiment-default.flex-container > div.flex > p > span.platforms');
-  const statusElements = await page.$$('#tab-content-available > div > div.experiment > div.experiment-default.flex-container > div.flex.experiment-actions > select');
+  await page.goto('chrome://flags');
+  const flagElements = await page.$$(
+      '#tab-content-available > div > div.experiment > div.experiment-default.flex-container > div.flex > a');
+  const nameElements = await page.$$(
+      '#tab-content-available > div > div.experiment > div.experiment-default.flex-container > div.flex > h3.experiment-name');
+  const descElements = await page.$$(
+      '#tab-content-available > div > div.experiment > div.experiment-default.flex-container > div.flex > p > span:nth-child(odd)');
+  const platformElements = await page.$$(
+      '#tab-content-available > div > div.experiment > div.experiment-default.flex-container > div.flex > p > span.platforms');
+  const statusElements = await page.$$(
+      '#tab-content-available > div > div.experiment > div.experiment-default.flex-container > div.flex.experiment-actions > select');
   for (const flag of flagElements) {
     const flagText = await flag.evaluate(element => element.textContent);
     flagList.push(flagText);
@@ -38,7 +41,8 @@ async function getAllFlags() {
     descList.push(descText);
   }
   for (const platform of platformElements) {
-    const platformText = await platform.evaluate(element => element.textContent);
+    const platformText =
+        await platform.evaluate(element => element.textContent);
     platformList.push(platformText);
   }
   for (const status of statusElements) {
@@ -47,7 +51,9 @@ async function getAllFlags() {
   }
 
   let flagsList = [];
-  if (flagList.length === nameList.length && descList.length === platformList.length && statusList.length === flagList.length) {
+  if (flagList.length === nameList.length &&
+      descList.length === platformList.length &&
+      statusList.length === flagList.length) {
     for (let i = 0; i < nameList.length; i++) {
       let flags = {};
       flags['name'] = nameList[i];
@@ -58,15 +64,17 @@ async function getAllFlags() {
       console.log(flags);
       flagsList.push(flags);
     }
-    
+
   } else {
-    return Promise.reject(`Error: the length of flags' properties are not equal. \
-        ${flagList.length}-${nameList.length}-${descList.length}-${platformList.length}-${statusList}`);
+    return Promise.reject(
+        `Error: the length of flags' properties are not equal. \
+        ${flagList.length}-${nameList.length}-${descList.length}-${
+            platformList.length}-${statusList}`);
   }
   console.log(flagsList);
-// try {
-//   await browser.close();
-// }catch (e){console.log(e)};
+  // try {
+  //   await browser.close();
+  // }catch (e){console.log(e)};
   return Promise.resolve(flagsList);
 }
 
@@ -80,13 +88,13 @@ async function writeDataToExcel(pathname, jsonData) {
     ws.cell(1, i + 1).string(tableHeader[i]);
 
   for (let i = 0; i < jsonData.length; i++) {
-    let desc = jsonData[i]["desc"];
-    let platform = jsonData[i]["platform"];
-    ws.cell(i + 2, 1).string(jsonData[i]["name"]);
+    let desc = jsonData[i]['desc'];
+    let platform = jsonData[i]['platform'];
+    ws.cell(i + 2, 1).string(jsonData[i]['name']);
     ws.cell(i + 2, 2).string(desc);
     ws.cell(i + 2, 3).string(platform);
-    ws.cell(i + 2, 4).string(jsonData[i]["flag"]);
-    ws.cell(i + 2, 5).string(jsonData[i]["status"]);
+    ws.cell(i + 2, 4).string(jsonData[i]['flag']);
+    ws.cell(i + 2, 5).string(jsonData[i]['status']);
   }
 
   console.log(pathname);
@@ -96,7 +104,7 @@ async function writeDataToExcel(pathname, jsonData) {
 }
 
 async function genExcelFiles() {
-  console.log("start get result");
+  console.log('start get result');
   const results = await getAllFlags();
   // console.log("get result: ", results);
   let excelPathName = path.join(process.cwd(), 'flags.xlsx');

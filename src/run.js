@@ -19,17 +19,18 @@ function getPlatformName() {
 }
 
 /*
-* Sort the score object array by specific key and get the medium one.
-*/
+ * Sort the score object array by specific key and get the medium one.
+ */
 function sortScores(scoresArray, score, propertyName) {
   scoresArray.sort((a, b) => {
-    return Number.parseFloat(a[score][propertyName]) - Number.parseFloat(b[score][propertyName]);
+    return Number.parseFloat(a[score][propertyName]) -
+        Number.parseFloat(b[score][propertyName]);
   });
 }
 
 /*
-* Run a workload several times and sort
-*/
+ * Run a workload several times and sort
+ */
 async function runWorkload(workload, executor) {
   let originScoresArray = [];
   let scoresArray = [];
@@ -39,7 +40,11 @@ async function runWorkload(workload, executor) {
     originScoresArray.push(thisScore);
     scoresArray.push(thisScore);
 
-    await new Promise(resolve => setTimeout(resolve, workload.sleep_interval * 1000)); // sleep for a while before next time running
+    await new Promise(
+        resolve => setTimeout(
+            resolve,
+            workload.sleep_interval *
+                1000));  // sleep for a while before next time running
   }
 
   sortScores(scoresArray, 'results', 'Total Result');
@@ -47,8 +52,7 @@ async function runWorkload(workload, executor) {
 
   let selectedRound = -1;
   for (let i = 0; i < originScoresArray.length; i++) {
-    if (scoresArray[middleIndex] === originScoresArray[i])
-      selectedRound = i;
+    if (scoresArray[middleIndex] === originScoresArray[i]) selectedRound = i;
   }
 
   return Promise.resolve({
@@ -59,16 +63,19 @@ async function runWorkload(workload, executor) {
 }
 
 /*
-*   Generate a JSON file to store this test result
-*   Return: The absolute pathname of the JSON file
-*/
+ *   Generate a JSON file to store this test result
+ *   Return: The absolute pathname of the JSON file
+ */
 async function storeTestData(deviceInfo, workload, jsonData, timestamp) {
-  let testResultsDir = path.join(process.cwd(), 'out', timestamp, workload.name);
+  let testResultsDir =
+      path.join(process.cwd(), 'out', timestamp, workload.name);
   if (!fs.existsSync(testResultsDir)) {
     fs.mkdirSync(testResultsDir, {recursive: true});
   }
 
-  let cpuInfo = [deviceInfo['CPU']['mfr'], deviceInfo['CPU']['info'].replace(/\s/g, '-')].join('-');
+  let cpuInfo = [
+    deviceInfo['CPU']['mfr'], deviceInfo['CPU']['info'].replace(/\s/g, '-')
+  ].join('-');
   let date = new Date();
   let isoDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
   let jsonDate = isoDate.toISOString().split('.')[0].replace(/T|-|:/g, '');
@@ -76,14 +83,15 @@ async function storeTestData(deviceInfo, workload, jsonData, timestamp) {
   let jsonFilename = jsonDate + '_' + cpuInfo + '_' + browser + '.json';
   let absJSONFilename = path.join(testResultsDir, jsonFilename);
 
-  await fsPromises.writeFile(absJSONFilename, JSON.stringify(jsonData, null, 4));
+  await fsPromises.writeFile(
+      absJSONFilename, JSON.stringify(jsonData, null, 4));
   return Promise.resolve(absJSONFilename);
 }
 
 /*
-* Call a workload and generate the JSON file to store the test results
-* Return: The absolute path name of the JSON file.
-*/
+ * Call a workload and generate the JSON file to store the test results
+ * Return: The absolute path name of the JSON file.
+ */
 
 async function genWorkloadResult(deviceInfo, workload, executor, timestamp) {
   // if (!settings.dev_mode) {
@@ -100,7 +108,8 @@ async function genWorkloadResult(deviceInfo, workload, executor, timestamp) {
     'execution_date': results.middle_score.date
   }
 
-  let jsonFilename = await storeTestData(deviceInfo, workload, jsonData, timestamp);
+  let jsonFilename =
+      await storeTestData(deviceInfo, workload, jsonData, timestamp);
   // if (!settings.dev_mode) {
   //   await syncRemoteDirectory(workload, 'push');
   // }
@@ -108,10 +117,11 @@ async function genWorkloadResult(deviceInfo, workload, executor, timestamp) {
 }
 
 /*
-* Sync local test results directory with the one in remote server.
-*/
+ * Sync local test results directory with the one in remote server.
+ */
 async function syncRemoteDirectory(workload, action) {
-  let testResultsDir = path.join(process.cwd(), 'results', getPlatformName(), workload.name);
+  let testResultsDir =
+      path.join(process.cwd(), 'results', getPlatformName(), workload.name);
   if (!fs.existsSync(testResultsDir)) {
     fs.mkdirSync(testResultsDir, {recursive: true});
   }
@@ -124,7 +134,9 @@ async function syncRemoteDirectory(workload, action) {
   };
 
   let currentPlatform = getPlatformName();
-  let remoteResultDir = `/home/${settings.result_server.username}/webpnp/results/${currentPlatform}/${workload.name}`;
+  let remoteResultDir =
+      `/home/${settings.result_server.username}/webpnp/results/${
+          currentPlatform}/${workload.name}`;
   let sftp = new Client();
   try {
     await sftp.connect(serverConfig);
@@ -139,8 +151,9 @@ async function syncRemoteDirectory(workload, action) {
       for (let remoteFile of remoteResultFiles) {
         if (!fs.existsSync(path.join(testResultsDir, remoteFile.name))) {
           console.log(`Downloading remote file: ${remoteFile.name}...`);
-          await sftp.fastGet(remoteResultDir + '/' + remoteFile.name,
-                            path.join(testResultsDir, remoteFile.name));
+          await sftp.fastGet(
+              remoteResultDir + '/' + remoteFile.name,
+              path.join(testResultsDir, remoteFile.name));
           console.log(`Remote file: ${remoteFile.name} downloaded.`);
         }
       }
@@ -150,7 +163,8 @@ async function syncRemoteDirectory(workload, action) {
         let remoteFileExist = await sftp.exists(absRemoteFilename);
         if (!remoteFileExist) {
           console.log(`Uploading local file: ${localFile}`);
-          await sftp.fastPut(path.join(testResultsDir, localFile), absRemoteFilename);
+          await sftp.fastPut(
+              path.join(testResultsDir, localFile), absRemoteFilename);
           console.log(`${localFile} uploaded to remote server.`);
         }
       }
@@ -165,15 +179,14 @@ async function syncRemoteDirectory(workload, action) {
 }
 
 /*
-* Run all the workloads defined in ../config.json and
-* generate the results to the ../results directory.
-* Return: an object like {
-*   'Speedometer2': 'path/to/json/file',
-*   ...
-* }
-*/
+ * Run all the workloads defined in ../config.json and
+ * generate the results to the ../results directory.
+ * Return: an object like {
+ *   'Speedometer2': 'path/to/json/file',
+ *   ...
+ * }
+ */
 async function genWorkloadsResults(deviceInfo, target, timestamp) {
-
   let results = {};
   let executors = {
     'TFJS_WebGL_ResNet_Tensor': runTFJS,
@@ -199,7 +212,8 @@ async function genWorkloadsResults(deviceInfo, target, timestamp) {
 
   for (field of fields) {
     if (field.indexOf('-') > -1) {
-      for (let i = parseInt(field.split('-')[0]); i <= parseInt(field.split('-')[1]); i++) {
+      for (let i = parseInt(field.split('-')[0]);
+           i <= parseInt(field.split('-')[1]); i++) {
         indexes.push(parseInt(i));
       }
     } else {
@@ -216,7 +230,8 @@ async function genWorkloadsResults(deviceInfo, target, timestamp) {
     }
 
     let executor = executors[workload.name];
-    results[workload.name] = await genWorkloadResult(deviceInfo, workload, executor, timestamp);
+    results[workload.name] =
+        await genWorkloadResult(deviceInfo, workload, executor, timestamp);
   }
 
   return Promise.resolve(results);

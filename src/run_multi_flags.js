@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 
 const genDeviceInfo = require('./get_device_info.js');
@@ -28,40 +28,33 @@ async function runWithFlag(deviceInfo) {
 }
 
 /*
-* Update config.json to set chrome flag, and dev_mode to true
-*/
+ * Update config.json to set chrome flag, and dev_mode to true
+ */
 async function updateConfig(flag) {
   settings.chrome_flags = flag;
   settings.dev_mode = true;
   await fs.promises.writeFile(
-    path.join(process.cwd(), 'config.json'),
-    JSON.stringify(settings, null, 4));
+      path.join(process.cwd(), 'config.json'),
+      JSON.stringify(settings, null, 4));
   return Promise.resolve();
 }
 
 
 (async function main() {
-
   const flagList = [
-    ["--enable-oop-rasterization", "--enable-gpu-rasterization"],
-    ["--disable-oop-rasterization", "--disable-gpu-rasterization"],
-    ["--enable-features=OopRasterizationDDL", "--enable-oop-rasterization"],
-    ["--disable-features=OopRasterizationDDL", "--disable-oop-rasterization"],
-    ["--disable-accelerated-2d-canvas"],
-    ["--disable-features=WebAssemblyBaseline"],
-    ["--disable-features=WebAssemblyTiering"],
-    ["--enable-features=V8VmFuture"],
-    ["--disable-gpu-rasterization"],
-    ["--enable-zero-copy"],
-    ["--enable-features=Vulkan"],
-    ["--disable-features=Vulkan"],
-    ["--use-angle=gl"],
-    ["--use-angle=d3d11"],
-    ["--use-angle=d3d9"],
-    ["--use-angle=d3d11on12"],
-    ["--disable-features=UseSkiaRenderer"],
-    ["--enable-features=DecodeJpeg420ImagesToYUV"],
-    ["--disable-features=TextureLayerSkipWaitForActivation"]
+    ['--enable-oop-rasterization', '--enable-gpu-rasterization'],
+    ['--disable-oop-rasterization', '--disable-gpu-rasterization'],
+    ['--enable-features=OopRasterizationDDL', '--enable-oop-rasterization'],
+    ['--disable-features=OopRasterizationDDL', '--disable-oop-rasterization'],
+    ['--disable-accelerated-2d-canvas'],
+    ['--disable-features=WebAssemblyBaseline'],
+    ['--disable-features=WebAssemblyTiering'], ['--enable-features=V8VmFuture'],
+    ['--disable-gpu-rasterization'], ['--enable-zero-copy'],
+    ['--enable-features=Vulkan'], ['--disable-features=Vulkan'],
+    ['--use-angle=gl'], ['--use-angle=d3d11'], ['--use-angle=d3d9'],
+    ['--use-angle=d3d11on12'], ['--disable-features=UseSkiaRenderer'],
+    ['--enable-features=DecodeJpeg420ImagesToYUV'],
+    ['--disable-features=TextureLayerSkipWaitForActivation']
   ];
   let workloadFiles = [];
 
@@ -69,7 +62,7 @@ async function updateConfig(flag) {
   for (let i = 0; i < flagList.length; i++) {
     const deviceInfo = await genDeviceInfo();
     // if (i > 0)
-      await updateConfig(flagList[i]);
+    await updateConfig(flagList[i]);
     let workloadFile = await runWithFlag(deviceInfo);
     workloadFiles.push(workloadFile);
     // if ( i%5 == 0 ) {
@@ -81,5 +74,4 @@ async function updateConfig(flag) {
   //   await genMultiFlagsResultsToExcel(workloadFiles, deviceInfo);
   // }
   return Promise.resolve();
-
 })();

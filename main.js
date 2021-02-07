@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const genDeviceInfo = require('./src/get_device_info.js');
 const runTest = require('./src/run.js');
@@ -14,32 +14,38 @@ const fs = require('fs');
 const GetChromiumBuild = require('./src/get_chromium_build.js');
 
 const args = require('yargs')
-  .usage('node $0 [args]')
-  .option('email', {
-    alias: 'e',
-    type: 'string',
-    describe: 'email to',
-  })
-  .option('repeat', {
-    type: 'number',
-    describe: 'repeat times',
-    default: 1,
-  })
-  .option('target', {
-    type: 'string',
-    describe: 'index of workloads to run, e.g., 1-2,5,6',
-  })
-  .option('update-chrome', {
-    alias: 'u',
-    type: 'boolean',
-    describe: 'Update chrome',
-  })
-  .example([
-    ['node $0 --email yourname@intel.com','send report to yourname@intel.com'],
-    ['node $0 -u -e yourname@intel.com','update chrome and send report to yourname@intel.com'],
-  ])
-  .help()
-  .argv;
+                 .usage('node $0 [args]')
+                 .option('email', {
+                   alias: 'e',
+                   type: 'string',
+                   describe: 'email to',
+                 })
+                 .option('repeat', {
+                   type: 'number',
+                   describe: 'repeat times',
+                   default: 1,
+                 })
+                 .option('target', {
+                   type: 'string',
+                   describe: 'index of workloads to run, e.g., 1-2,5,6',
+                 })
+                 .option('update-chrome', {
+                   alias: 'u',
+                   type: 'boolean',
+                   describe: 'Update chrome',
+                 })
+                 .example([
+                   [
+                     'node $0 --email yourname@intel.com',
+                     'send report to yourname@intel.com'
+                   ],
+                   [
+                     'node $0 -u -e yourname@intel.com',
+                     'update chrome and send report to yourname@intel.com'
+                   ],
+                 ])
+                 .help()
+                 .argv;
 
 const cpuModel = os.cpus()[0].model;
 const platform = runTest.getPlatformName();
@@ -63,27 +69,34 @@ async function main() {
   for (let i = 0; i < args['repeat']; i++) {
     try {
       let startTime = new Date();
-      let timestamp = startTime.getFullYear() + ('0' + (startTime.getMonth() + 1)).slice(-2) + ('0' + startTime.getDate()).slice(-2)
-          + ('0' + startTime .getHours()).slice(-2) + ('0' + startTime.getMinutes()).slice(-2) + ('0' + startTime .getSeconds()).slice(-2);
-      console.log(`== Test round ${i + 1}/${args['repeat']} at ${timestamp} ==`);
-      let subject = '[TFJS Test] ' + timestamp + ' - ' + platform + ' - ' + deviceInfo["CPU"]["info"] + ' - ' + deviceInfo.Browser;
-      const workloadResults = await runTest.genWorkloadsResults(deviceInfo, args.target, timestamp);
+      let timestamp = startTime.getFullYear() +
+          ('0' + (startTime.getMonth() + 1)).slice(-2) +
+          ('0' + startTime.getDate()).slice(-2) +
+          ('0' + startTime.getHours()).slice(-2) +
+          ('0' + startTime.getMinutes()).slice(-2) +
+          ('0' + startTime.getSeconds()).slice(-2);
+      console.log(
+          `== Test round ${i + 1}/${args['repeat']} at ${timestamp} ==`);
+      let subject = '[TFJS Test] ' + timestamp + ' - ' + platform + ' - ' +
+          deviceInfo['CPU']['info'] + ' - ' + deviceInfo.Browser;
+      const workloadResults =
+          await runTest.genWorkloadsResults(deviceInfo, args.target, timestamp);
       let endTime = new Date();
-      const testReports = await genTestReport(workloadResults, duration(startTime, endTime), timestamp);
+      const testReports = await genTestReport(
+          workloadResults, duration(startTime, endTime), timestamp);
 
-      if ('email' in args)
-        await sendMail(args['email'], subject, testReports);
+      if ('email' in args) await sendMail(args['email'], subject, testReports);
     } catch (err) {
       console.log(err);
       let subject = '[TFJS Test] ' + timestamp;
       if (!settings.dev_mode && err.message.includes('No new browser update')) {
-        subject += 'Auto test cancelled on ' + platform + ' as no browser update';
+        subject +=
+            'Auto test cancelled on ' + platform + ' as no browser update';
       } else {
         subject += 'Auto test failed on ' + platform + '-' + cpuModel;
       }
 
-      if ('email' in args)
-        await sendMail(args['email'], subject, err);
+      if ('email' in args) await sendMail(args['email'], subject, err);
     }
   }
 }
@@ -91,14 +104,17 @@ async function main() {
 if (settings.enable_cron) {
   cron.schedule(settings.update_browser_sched, () => {
     browser.updateChrome();
-    //repo.updateTFJS();
+    // repo.updateTFJS();
   });
   if (cpuModel.includes('Intel')) {
     cron.schedule(settings.intel_test_cadence, async () => {
-      settings.chrome_flags = ["--enable-unsafe-webgpu", "--enable-dawn-features=disable_robustness",
-    "--enable-features=WebAssemblySimd,WebAssemblyThreads"];
+      settings.chrome_flags = [
+        '--enable-unsafe-webgpu', '--enable-dawn-features=disable_robustness',
+        '--enable-features=WebAssemblySimd,WebAssemblyThreads'
+      ];
       await main();
-      // settings.chrome_flags = ["--enable-unsafe-webgpu","--enable-features=WebAssemblySimd,WebAssemblyThreads"];
+      // settings.chrome_flags =
+      // ["--enable-unsafe-webgpu","--enable-features=WebAssemblySimd,WebAssemblyThreads"];
       // await main();
     });
   } else {
@@ -107,10 +123,11 @@ if (settings.enable_cron) {
     });
   }
 } else {
-  if ('update-chrome' in args)
-    browser.updateChrome();
+  if ('update-chrome' in args) browser.updateChrome();
 
-  settings.chrome_flags = ["--enable-unsafe-webgpu", "--enable-dawn-features=disable_robustness",
-    "--enable-features=WebAssemblySimd,WebAssemblyThreads"];
+  settings.chrome_flags = [
+    '--enable-unsafe-webgpu', '--enable-dawn-features=disable_robustness',
+    '--enable-features=WebAssemblySimd,WebAssemblyThreads'
+  ];
   main();
 }

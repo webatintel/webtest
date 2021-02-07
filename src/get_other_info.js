@@ -1,15 +1,15 @@
-"use strict";
+'use strict';
 
 const settings = require('../config.json');
 const platformBrowser = require('./browser.js');
-const { chromium } = require('playwright-chromium');
+const {chromium} = require('playwright-chromium');
 const path = require('path');
 const fs = require('fs');
 const si = require('systeminformation');
 
 /*
-* Get information of gpu driver version and browser version
-*/
+ * Get information of gpu driver version and browser version
+ */
 async function getOtherInfo() {
   platformBrowser.configChromePath(settings);
   const chromePath = settings.chrome_path;
@@ -18,19 +18,22 @@ async function getOtherInfo() {
     headless: false,
     executablePath: chromePath,
     viewport: null,
-    args: ["--start-maximized"]
+    args: ['--start-maximized']
   });
 
   const page = await browser.newPage();
 
   // Get Chrome version
   await page.goto('chrome://version');
-  const browserNameElem = await page.$('#inner > tbody > tr:nth-child(1) > td.label');
-  let browserName = await browserNameElem.evaluate(element => element.innerText);
-  const browserRevElem = await page.$('#inner > tbody > tr:nth-child(2) > td.version');
+  const browserNameElem =
+      await page.$('#inner > tbody > tr:nth-child(1) > td.label');
+  let browserName =
+      await browserNameElem.evaluate(element => element.innerText);
+  const browserRevElem =
+      await page.$('#inner > tbody > tr:nth-child(2) > td.version');
   let browserRev = await browserRevElem.evaluate(element => element.innerText);
 
- if (browserName.includes('Chromium')) {
+  if (browserName.includes('Chromium')) {
     browserName = 'Chromium';
   } else {
     browserName = 'Chrome';
@@ -40,18 +43,20 @@ async function getOtherInfo() {
   versionInfo = versionInfo.replace('x86_64', '64-bit');
 
   const os = await si.osInfo();
-  let osArch = os.arch === 'x64' ? '64-bit': '32-bit';
+  let osArch = os.arch === 'x64' ? '64-bit' : '32-bit';
   // Some device's default language is Chinese
-  let chineseOsArch = os.arch === 'x64' ? '64 位': '32 位';
+  let chineseOsArch = os.arch === 'x64' ? '64 位' : '32 位';
   if (!(versionInfo.includes(osArch) || versionInfo.includes(chineseOsArch))) {
-    return Promise.reject("Error: Arches mismatch between Chrome and test system!");
+    return Promise.reject(
+        'Error: Arches mismatch between Chrome and test system!');
   }
   let chromeChannel = '';
   if (versionInfo.includes('Stable')) {
     chromeChannel = 'Stable';
   } else if (versionInfo.includes('canary')) {
     chromeChannel = 'Canary';
-  // } else if (versionInfo.includes('Developer') || versionInfo.includes('dev')) {
+    // } else if (versionInfo.includes('Developer') ||
+    // versionInfo.includes('dev')) {
   } else if (versionInfo.includes('beta')) {
     chromeChannel = 'Beta';
   } else if (versionInfo.includes('dev')) {
@@ -59,15 +64,17 @@ async function getOtherInfo() {
   } else {
     chromeChannel = 'Stable';
   }
-  let chromeVersion = browserName + '-' + chromeChannel + '-' + versionInfo.split(' ')[0];
-  if (browserName === "Chromium") {
+  let chromeVersion =
+      browserName + '-' + chromeChannel + '-' + versionInfo.split(' ')[0];
+  if (browserName === 'Chromium') {
     chromeVersion = browserName + '-' + versionInfo.split(' ')[0];
   }
 
   // Get GPU driver version
   await page.goto('chrome://gpu');
   const gpuDriverVersion = await page.evaluate(() => {
-    let table = document.querySelector('#basic-info').querySelector('#info-view-table');
+    let table =
+        document.querySelector('#basic-info').querySelector('#info-view-table');
     for (let i = 0; i < table.rows.length; i++) {
       if (table.rows[i].cells[0].innerText === 'Driver version') {
         return table.rows[i].cells[1].innerText;
@@ -76,25 +83,26 @@ async function getOtherInfo() {
     return '';
   });
   if (gpuDriverVersion === '')
-    console.error("Error: Cann't get GPU Driver version!");
+    console.error('Error: Cann\'t get GPU Driver version!');
 
   const screenRes = await page.evaluate(() => {
     const screenResX = window.screen.width;
     const screenResY = window.screen.height;
     const scaleRatio = window.devicePixelRatio;
-    return screenResX * scaleRatio + " x " + screenResY * scaleRatio;
+    return screenResX * scaleRatio + ' x ' + screenResY * scaleRatio;
   });
 
-  await browser.close(); // A bug here, await close() method will hang and never been resolved.
+  await browser.close();  // A bug here, await close() method will hang and
+                          // never been resolved.
 
   const otherInfo = {
-    "chromeVersion": chromeVersion,
-    "chromeRev": browserRev,
-    "gpuDriverVersion": gpuDriverVersion,
-    "ScreenResolution": screenRes
+    'chromeVersion': chromeVersion,
+    'chromeRev': browserRev,
+    'gpuDriverVersion': gpuDriverVersion,
+    'ScreenResolution': screenRes
   };
 
- return Promise.resolve(otherInfo);
+  return Promise.resolve(otherInfo);
 };
 
 module.exports = getOtherInfo;

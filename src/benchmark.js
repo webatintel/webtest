@@ -29,17 +29,21 @@ async function runBenchmark(i) {
   });
   const page = await browser.newPage();
 
-  browser.setDefaultNavigationTimeout(3 * 60 * 1000);
+  browser.setDefaultNavigationTimeout(util.timeout);
   await page.goto(getUrl(i));
 
   //await page.evaluate(async () => {
   //  const runButton = document.querySelector('#gui > ul > li:nth-child(5) > div > span');
   //  runButton.click();
-  //  await new Promise(resolve => setTimeout(resolve, 30 * 1000));
+  //  await new Promise(resolve => setTimeout(resolve, util.timeout));
   //});
 
-  // Waits for result elements
-  await page.waitForSelector('#timings > tbody > tr:nth-child(8) > td:nth-child(2)', { timeout: 10 * 60 * 1000 });
+  try {
+    await page.waitForSelector('#timings > tbody > tr:nth-child(8) > td:nth-child(2)', { timeout: util.timeout });
+  } catch (err) {
+    await browser.close();
+    return Promise.resolve(-1);
+  }
   const resultElem = await page.$('#timings > tbody > tr:nth-child(8) > td:nth-child(2)');
   let result = await resultElem.evaluate(element => element.textContent);
   await browser.close();

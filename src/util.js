@@ -136,6 +136,7 @@ module.exports = {
   'outDir': outDir,
   'resultsDir': `${outDir}/results`,
   'userDataDir': `${outDir}/User Data`,
+  'timeout': 30 * 1000,
 
   getDuration: getDuration,
   getTimestamp: getTimestamp,

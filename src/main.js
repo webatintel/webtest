@@ -1,21 +1,24 @@
 'use strict';
 
-const genDeviceInfo = require('./get_device_info.js');
-const runTest = require('./run.js');
-const browser = require('./browser.js');
-const genTestReport = require('./gen_single_report.js');
-const sendMail = require('./send_mail.js');
-const settings = require('./config.json');
-const os = require('os');
-const path = require('path');
-const fs = require('fs');
+const { exit } = require('yargs');
+const benchmark = require('./benchmark.js');
+const config = require('./config.js');
+const util = require('./util.js');
 
-const args = require('yargs')
+util.args = require('yargs')
   .usage('node $0 [args]')
+  .option('dryrun', {
+    type: 'boolean',
+    describe: 'dryrun the test',
+  })
   .option('email', {
     alias: 'e',
     type: 'string',
     describe: 'email to',
+  })
+  .option('list', {
+    type: 'boolean',
+    describe: 'list benchmarks',
   })
   .option('repeat', {
     type: 'number',
@@ -24,90 +27,69 @@ const args = require('yargs')
   })
   .option('target', {
     type: 'string',
-    describe: 'index of workloads to run, e.g., 1-2,5,6',
+    describe: 'index of benchmarks to run, e.g., 1-2,5,6',
   })
-  .option('update-chrome', {
-    alias: 'u',
-    type: 'boolean',
-    describe: 'Update chrome',
+  .option('run-times', {
+    type: 'integer',
+    describe: 'run times',
+  })
+  .option('url', {
+    type: 'string',
+    describe: 'url to test against',
+  })
+  .option('warmup-times', {
+    type: 'integer',
+    describe: 'warmup times',
   })
   .example([
-    ['node $0 --email yourname@intel.com','send report to yourname@intel.com'],
-    ['node $0 -u -e yourname@intel.com','update chrome and send report to yourname@intel.com'],
+    ['node $0 --email <email>', 'send report to <email>'],
   ])
   .help()
   .argv;
 
-const cpuModel = os.cpus()[0].model;
-const platform = runTest.getPlatformName();
+function parseArgs() {
+  if ('list' in util.args) {
+    for (let index in util.benchmarks) {
+      console.log(`${index}: ${util.benchmarks[index]}`);
+    }
+    exit(0);
+  }
 
-const duration = (start, end) => {
-  let diff = Math.abs(start - end);
-  const hours = Math.floor(diff / 3600000);
-  diff -= hours * 3600000;
-  const minutes = Math.floor(diff / 60000);
-  diff -= minutes * 60000;
-  const seconds = Math.floor(diff / 1000);
-  return `${hours}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}`;
-};
+  if ('dryrun' in util.args) {
+    util.dryrun = true;
+  } else {
+    util.dryrun = false;
+  }
+
+  if ('run-times' in util.args) {
+    util.runTimes = parseInt(util.args['run-times']);
+  } else {
+    util.runTimes = 50;
+  }
+
+  if ('warmup-times' in util.args) {
+    util.warmupTimes = parseInt(util.args['warmup-times']);
+  } else {
+    util.warmupTimes = 50;
+  }
+
+  if ('url' in util.args) {
+    util.url = util.args['url'];
+  } else {
+    util.url = 'http://wp-27.sh.intel.com/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/';
+  }
+}
 
 async function main() {
-  const outDir = path.join(process.cwd(), '../out');
-  if (!fs.existsSync(outDir)) {
-    fs.mkdirSync(outDir);
-  }
-  let deviceInfo = await genDeviceInfo();
-  for (let i = 0; i < args['repeat']; i++) {
-    try {
-      let startTime = new Date();
-      let timestamp = startTime.getFullYear() + ('0' + (startTime.getMonth() + 1)).slice(-2) + ('0' + startTime.getDate()).slice(-2)
-          + ('0' + startTime .getHours()).slice(-2) + ('0' + startTime.getMinutes()).slice(-2) + ('0' + startTime .getSeconds()).slice(-2);
-      console.log(`== Test round ${i + 1}/${args['repeat']} at ${timestamp} ==`);
-      let subject = '[TFJS Test] ' + timestamp + ' - ' + platform + ' - ' + deviceInfo['CPU']['info'] + ' - ' + deviceInfo.Browser;
-      const workloadResults = await runTest.genWorkloadsResults(deviceInfo, args.target, timestamp);
-      let endTime = new Date();
-      const testReports = await genTestReport(workloadResults, duration(startTime, endTime), timestamp);
+  parseArgs();
+  await config();
 
-      if ('email' in args)
-        await sendMail(args['email'], subject, testReports);
-    } catch (err) {
-      console.log(err);
-      let subject = '[TFJS Test] ' + timestamp;
-      if (!settings.dev_mode && err.message.includes('No new browser update')) {
-        subject += 'Auto test cancelled on ' + platform + ' as no browser update';
-      } else {
-        subject += 'Auto test failed on ' + platform + '-' + cpuModel;
-      }
-
-      if ('email' in args)
-        await sendMail(args['email'], subject, err);
+  for (let i = 0; i < util.args['repeat']; i++) {
+    if (util.args['repeat'] > 1) {
+      console.log(`== Test round ${i + 1}/${util.args['repeat']} ==`);
     }
+    await benchmark.runBenchmarks();
   }
 }
 
-if (settings.enable_cron) {
-  cron.schedule(settings.update_browser_sched, () => {
-    browser.updateChrome();
-    //repo.updateTFJS();
-  });
-  if (cpuModel.includes('Intel')) {
-    cron.schedule(settings.intel_test_cadence, async () => {
-      settings.chrome_flags = ['--enable-unsafe-webgpu', '--enable-dawn-features=disable_robustness',
-    '--enable-features=WebAssemblySimd,WebAssemblyThreads'];
-      await main();
-      // settings.chrome_flags = ['--enable-unsafe-webgpu','--enable-features=WebAssemblySimd,WebAssemblyThreads'];
-      // await main();
-    });
-  } else {
-    cron.schedule(settings.amd_test_cadence, () => {
-      main();
-    });
-  }
-} else {
-  if ('update-chrome' in args)
-    browser.updateChrome();
-
-  settings.chrome_flags = ['--enable-unsafe-webgpu', '--enable-dawn-features=disable_robustness',
-    '--enable-features=WebAssemblySimd,WebAssemblyThreads'];
-  main();
-}
+main();

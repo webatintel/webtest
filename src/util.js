@@ -10,7 +10,7 @@ let benchmarksJson = [
   {
     'benchmark': 'bodypix',
     'architecture': ['MobileNetV1', 'ResNet50'],
-    'inputSize': [0.25, 0.5, 0.75, 1.0],
+    'inputSize': [0.25, 0.5, 0.75],
     'inputType': ['image', 'tensor'],
     'backend': ['wasm', 'webgl'],
   },
@@ -21,8 +21,8 @@ let benchmarksJson = [
   {
     'benchmark': 'posenet',
     'architecture': ['MobileNetV1', 'ResNet50'],
-    'inputSize': [128, 257, 512, 1024],
-    'inputType': ['image', 'tensor'],
+    'inputSize': [257, 512],
+    'inputType': ['image', 'tensor', 'imageBitmap'],
     'backend': ['wasm', 'webgl', 'webgpu'],
   },
 ];
@@ -44,15 +44,6 @@ let backends = [
 
 let platform = os.platform();
 
-let benchmarks = [];
-for (let benchmarkJson of benchmarksJson) {
-  let seqArray = [];
-  for (let p of parameters) {
-    seqArray.push(p in benchmarkJson ? (Array.isArray(benchmarkJson[p]) ? benchmarkJson[p] : [benchmarkJson[p]]) : ['']);
-  }
-  benchmarks = benchmarks.concat(cartesianProduct(seqArray));
-}
-
 const outDir = path.join(process.cwd(), '../out');
 if (!fs.existsSync(outDir)) {
   fs.mkdirSync(outDir);
@@ -68,16 +59,6 @@ if (platform === 'darwin') {
 } else {
   console.error('Unsupported Platform');
   exit(1);
-}
-
-function cartesianProduct(arr) {
-  return arr.reduce(function (a, b) {
-    return a.map(function (x) {
-      return b.map(function (y) {
-        return x.concat([y]);
-      })
-    }).reduce(function (a, b) { return a.concat(b) }, [])
-  }, [[]])
 }
 
 function getDuration(start, end) {
@@ -130,7 +111,7 @@ module.exports = {
   'hostname': os.hostname(),
   'platform': platform,
 
-  'benchmarks': benchmarks,
+  'benchmarksJson': benchmarksJson,
   'backends': backends,
   'parameters': parameters,
   'outDir': outDir,

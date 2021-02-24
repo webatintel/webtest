@@ -7,6 +7,14 @@ const util = require('./util.js');
 
 util.args = require('yargs')
   .usage('node $0 [args]')
+  .option('backend', {
+    type: 'string',
+    describe: 'backend to run, splitted by comma',
+  })
+  .option('benchmark', {
+    type: 'string',
+    describe: 'benchmark to run, splitted by comma',
+  })
   .option('dryrun', {
     type: 'boolean',
     describe: 'dryrun the test',
@@ -47,7 +55,47 @@ util.args = require('yargs')
   .help()
   .argv;
 
+function cartesianProduct(arr) {
+  return arr.reduce(function (a, b) {
+    return a.map(function (x) {
+      return b.map(function (y) {
+        return x.concat([y]);
+      })
+    }).reduce(function (a, b) { return a.concat(b) }, [])
+  }, [[]])
+}
+
+function intersect(a, b) {
+  return a.filter(v => b.includes(v));
+}
+
 function parseArgs() {
+  let validBenchmarkNames = [];
+  if ('benchmark' in util.args) {
+    validBenchmarkNames = util.args['benchmark'].split(',');
+  } else {
+    for (let benchmarkJson of util.benchmarksJson) {
+      validBenchmarkNames.push(benchmarkJson['benchmark']);
+    }
+  }
+
+  let benchmarks = [];
+  for (let benchmarkJson of util.benchmarksJson) {
+    let benchmarkName = benchmarkJson['benchmark'];
+    if (!validBenchmarkNames.includes(benchmarkName)) {
+      continue;
+    }
+    if ('backend' in util.args) {
+      benchmarkJson['backend'] = intersect(benchmarkJson['backend'], util.args['backend'].split(','));
+    }
+    let seqArray = [];
+    for (let p of util.parameters) {
+      seqArray.push(p in benchmarkJson ? (Array.isArray(benchmarkJson[p]) ? benchmarkJson[p] : [benchmarkJson[p]]) : ['']);
+    }
+    benchmarks = benchmarks.concat(cartesianProduct(seqArray));
+  }
+  util.benchmarks = benchmarks;
+
   if ('list' in util.args) {
     for (let index in util.benchmarks) {
       console.log(`${index}: ${util.benchmarks[index]}`);

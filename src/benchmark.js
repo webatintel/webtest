@@ -28,8 +28,6 @@ async function runBenchmark(i) {
     args: util['browserArgs'],
   });
   const page = await browser.newPage();
-
-  browser.setDefaultNavigationTimeout(util.timeout);
   await page.goto(getUrl(i));
 
   //await page.evaluate(async () => {

@@ -6,7 +6,7 @@ const report = require('./report.js')
 const util = require('./util.js')
 
 function getUrl(i) {
-  let fullUrl = `${util.url}?warmup=${util.warmupTimes}&run=${util.runTimes}`;
+  let fullUrl = `${util.url}?task=performance&warmup=${util.warmupTimes}&run=${util.runTimes}`;
   for (let index in util.parameters) {
     if (util.benchmarks[i][index]) {
       fullUrl += `&${util.parameters[index]}=${util.benchmarks[i][index]}`;

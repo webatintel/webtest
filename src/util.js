@@ -44,7 +44,7 @@ let backends = [
 
 let platform = os.platform();
 
-const outDir = path.join(process.cwd(), '../out');
+const outDir = path.join(path.resolve(__dirname), '../out');
 if (!fs.existsSync(outDir)) {
   fs.mkdirSync(outDir);
 }

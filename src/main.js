@@ -3,6 +3,8 @@
 const { exit } = require('yargs');
 const benchmark = require('./benchmark.js');
 const config = require('./config.js');
+const fs = require('fs');
+const path = require('path');
 const util = require('./util.js');
 
 util.args = require('yargs')
@@ -14,6 +16,10 @@ util.args = require('yargs')
   .option('benchmark', {
     type: 'string',
     describe: 'benchmark to run, splitted by comma',
+  })
+  .option('benchmark-file', {
+    type: 'string',
+    describe: 'benchmark file, default to benchmark.json',
   })
   .option('dryrun', {
     type: 'boolean',
@@ -70,27 +76,34 @@ function intersect(a, b) {
 }
 
 function parseArgs() {
+  let benchmarkFile = '';
+  if ('benchmark-file' in util.args) {
+    benchmarkFile = util.args['benchmark-file'];
+  } else {
+    benchmarkFile = path.join(path.resolve(__dirname), 'benchmark.json');
+  }
+  let rawBenchmarks = JSON.parse(fs.readFileSync(benchmarkFile));
   let validBenchmarkNames = [];
   if ('benchmark' in util.args) {
     validBenchmarkNames = util.args['benchmark'].split(',');
   } else {
-    for (let benchmarkJson of util.benchmarksJson) {
-      validBenchmarkNames.push(benchmarkJson['benchmark']);
+    for (let benchmark of rawBenchmarks) {
+      validBenchmarkNames.push(benchmark['benchmark']);
     }
   }
 
   let benchmarks = [];
-  for (let benchmarkJson of util.benchmarksJson) {
-    let benchmarkName = benchmarkJson['benchmark'];
+  for (let benchmark of rawBenchmarks) {
+    let benchmarkName = benchmark['benchmark'];
     if (!validBenchmarkNames.includes(benchmarkName)) {
       continue;
     }
     if ('backend' in util.args) {
-      benchmarkJson['backend'] = intersect(benchmarkJson['backend'], util.args['backend'].split(','));
+      benchmark['backend'] = intersect(benchmark['backend'], util.args['backend'].split(','));
     }
     let seqArray = [];
     for (let p of util.parameters) {
-      seqArray.push(p in benchmarkJson ? (Array.isArray(benchmarkJson[p]) ? benchmarkJson[p] : [benchmarkJson[p]]) : ['']);
+      seqArray.push(p in benchmark ? (Array.isArray(benchmark[p]) ? benchmark[p] : [benchmark[p]]) : ['']);
     }
     benchmarks = benchmarks.concat(cartesianProduct(seqArray));
   }

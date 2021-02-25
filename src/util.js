@@ -6,27 +6,6 @@ const os = require('os');
 const path = require('path');
 const { exit } = require('process');
 
-let benchmarksJson = [
-  {
-    'benchmark': 'bodypix',
-    'architecture': ['MobileNetV1', 'ResNet50'],
-    'inputSize': [0.25, 0.5, 0.75],
-    'inputType': ['image', 'tensor'],
-    'backend': ['wasm', 'webgl'],
-  },
-  {
-    'benchmark': 'mobilenet_v2',
-    'backend': ['wasm', 'webgl', 'webgpu'],
-  },
-  {
-    'benchmark': 'posenet',
-    'architecture': ['MobileNetV1', 'ResNet50'],
-    'inputSize': [257, 512],
-    'inputType': ['image', 'tensor', 'imageBitmap'],
-    'backend': ['wasm', 'webgl', 'webgpu'],
-  },
-];
-
 let parameters = [
   'benchmark',
   'architecture',
@@ -107,11 +86,10 @@ function padZero(str) {
 
 module.exports = {
   'browserPath': browserPath,
-  'browserArgs': ['--enable-unsafe-webgpu', '--enable-dawn-features=disable_robustness', '--enable-features=WebAssemblySimd,WebAssemblyThreads', '--disable-hang-monitor', '--start-maximized'],
+  'browserArgs': ['--enable-unsafe-webgpu', '--enable-dawn-features=disable_robustness', '--enable-features=WebAssemblySimd,WebAssemblyThreads', '--start-maximized'],
   'hostname': os.hostname(),
   'platform': platform,
 
-  'benchmarksJson': benchmarksJson,
   'backends': backends,
   'parameters': parameters,
   'outDir': outDir,

@@ -20,14 +20,14 @@ async function runBenchmark(i) {
     return Promise.resolve(0.1);
   }
 
-  const browser = await chromium.launchPersistentContext(util.userDataDir, {
+  const context = await chromium.launchPersistentContext(util.userDataDir, {
     headless: false,
     executablePath: util['browserPath'],
     viewport: null,
     ignoreHTTPSErrors: true,
     args: util['browserArgs'],
   });
-  const page = await browser.newPage();
+  const page = await context.newPage();
   await page.goto(getUrl(i));
 
   //await page.evaluate(async () => {
@@ -39,12 +39,12 @@ async function runBenchmark(i) {
   try {
     await page.waitForSelector('#timings > tbody > tr:nth-child(8) > td:nth-child(2)', { timeout: util.timeout });
   } catch (err) {
-    await browser.close();
+    await context.close();
     return Promise.resolve(-1);
   }
   const resultElem = await page.$('#timings > tbody > tr:nth-child(8) > td:nth-child(2)');
   let result = await resultElem.evaluate(element => element.textContent);
-  await browser.close();
+  await context.close();
 
   result = parseFloat(result.replace(' ms', ''));
   return Promise.resolve(result);

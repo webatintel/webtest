@@ -16,7 +16,7 @@ async function report(results, startTime) {
     </style>';
 
   // resultTable
-  let resultsTable = '<table><tr><th>Benchmark</th><th>WebGPU (ms)</th><th>WebGL (ms) (WebGPU vs. WebGL)</th><th>WASM (ms) (WebGPU vs. WASM)</th><th>CPU (ms) (WebGPU vs. CPU)</th></tr>';
+  let resultsTable = '<table><tr><th>Benchmark</th><th>WebGPU (ms)</th><th>WebGL (ms)</th><th>WebGPU vs. WebGL (%)</th><th>WASM (ms)</th><th>WebGPU vs. WASM (%)</th><th>CPU (ms)</th><th>WebGPU vs. CPU (%)</th></tr>';
   const goodStyle = 'style="color:green"';
   const badStyle = 'style="color:red"';
   const neutralStyle = 'style="color:black"';
@@ -28,9 +28,9 @@ async function report(results, startTime) {
       let style = webgpuValue == 0 || result[i + 1] == 0 ? neutralStyle : (webgpuValue < result[i + 1] ? goodStyle : badStyle);
       let percent = 'NA';
       if (result[i + 1] !== 0 && webgpuValue !== 0) {
-        percent = parseFloat((result[i + 1] - webgpuValue) / result[i + 1] * 100).toFixed(2) + '%';
+        percent = parseFloat((result[i + 1] - webgpuValue) / result[i + 1] * 100).toFixed(2);
       }
-      resultsTable += `<td ${style}>${result[i + 1]} (${percent})</td>`;
+      resultsTable += `<td>${result[i + 1]}</td><td ${style}>${percent}</td>`;
     }
     resultsTable += '</tr>';
   }

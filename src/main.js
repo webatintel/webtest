@@ -1,11 +1,12 @@
 'use strict';
 
 const { exit } = require('yargs');
-const benchmark = require('./benchmark.js');
 const config = require('./config.js');
 const fs = require('fs');
 const path = require('path');
 const util = require('./util.js');
+const style = require('./style.js');
+const { runAllTests } = require('./test.js');
 
 util.args = require('yargs')
   .usage('node $0 [args]')
@@ -134,6 +135,12 @@ function parseArgs() {
     util.warmupTimes = 50;
   }
 
+  if ('tfjsdir' in util.args) {
+    util.tfjsdir = util.args['tfjsdir'];
+  } else {
+    util.tfjsdir = 'C:/workspace/tfjsdaily/tfjs/tfjs-backend-webgpu';
+  }
+
   if ('url' in util.args) {
     util.url = util.args['url'];
   } else {
@@ -144,12 +151,11 @@ function parseArgs() {
 async function main() {
   parseArgs();
   await config();
-
   for (let i = 0; i < util.args['repeat']; i++) {
     if (util.args['repeat'] > 1) {
-      console.log(`== Test round ${i + 1}/${util.args['repeat']} ==`);
+        console.log(`== Test round ${i + 1}/${util.args['repeat']} ==`);
     }
-    await benchmark.runBenchmarks();
+    await runAllTests();
   }
 }
 

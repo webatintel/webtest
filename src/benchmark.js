@@ -42,10 +42,24 @@ async function runBenchmark(i) {
     await context.close();
     return Promise.resolve(-1);
   }
-  const resultElem = await page.$('#timings > tbody > tr:nth-child(8) > td:nth-child(2)');
-  let result = await resultElem.evaluate(element => element.textContent);
-  await context.close();
 
+  let index = 1;
+  let result = '-1 ms';
+  while (true) {
+    const typeElem = await page.$('#timings > tbody > tr:nth-child(' + index + ') > td:nth-child(1)');
+    if (typeElem == null) {
+      break;
+    }
+    const type = await typeElem.evaluate(element => element.textContent);
+    if (type.includes('average')) {
+      const valueElem = await page.$('#timings > tbody > tr:nth-child(' + index + ') > td:nth-child(2)');
+      result = await valueElem.evaluate(element => element.textContent);
+      break;
+    }
+    index += 1;
+  }
+
+  await context.close();
   result = parseFloat(result.replace(' ms', ''));
   return Promise.resolve(result);
 }

@@ -30,37 +30,25 @@ async function runBenchmark(i) {
   const page = await context.newPage();
   await page.goto(getUrl(i));
 
-  //await page.evaluate(async () => {
-  //  const runButton = document.querySelector('#gui > ul > li:nth-child(5) > div > span');
-  //  runButton.click();
-  //  await new Promise(resolve => setTimeout(resolve, util.timeout));
-  //});
-
-  try {
-    await page.waitForSelector('#timings > tbody > tr:nth-child(8) > td:nth-child(2)', { timeout: util.timeout });
-  } catch (err) {
-    await context.close();
-    return Promise.resolve(-1);
-  }
-
   let index = 1;
-  let result = '-1 ms';
+  let result = -1;
+  let expected_type = 'average';
   while (true) {
-    const typeElem = await page.$('#timings > tbody > tr:nth-child(' + index + ') > td:nth-child(1)');
-    if (typeElem == null) {
+    let selector = '#timings > tbody > tr:nth-child(' + index + ')';
+    try {
+      await page.waitForSelector(selector, { timeout: util.timeout });
+    } catch (err) {
       break;
     }
-    const type = await typeElem.evaluate(element => element.textContent);
-    if (type.includes('average')) {
-      const valueElem = await page.$('#timings > tbody > tr:nth-child(' + index + ') > td:nth-child(2)');
-      result = await valueElem.evaluate(element => element.textContent);
+    const type = await page.$eval(selector + ' > td:nth-child(1)', el => el.textContent);
+    if (type.includes(expected_type)) {
+      result = await page.$eval(selector + ' > td:nth-child(2)', el => parseFloat(el.textContent.replace(' ms', '')));
       break;
     }
     index += 1;
   }
 
   await context.close();
-  result = parseFloat(result.replace(' ms', ''));
   return Promise.resolve(result);
 }
 

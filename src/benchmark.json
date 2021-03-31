@@ -13,7 +13,7 @@
   {
     "benchmark": "posenet",
     "architecture": ["MobileNetV1", "ResNet50"],
-    "inputSize": [257, 512],
+    "inputSize": [256, 512],
     "inputType": ["image", "tensor", "imageBitmap"],
     "backend": ["wasm", "webgl", "webgpu"]
   }

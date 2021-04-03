@@ -29,56 +29,6 @@ function getDurationTable(duration) {
   return `<table><tr><td>duration</td><td>${duration}</td></tr></table>`;
 }
 
-/*
-async function gotoURL(url, util, index) {
-  const context = await chromium.launchPersistentContext(util.userDataDir, {
-    headless: false,
-    executablePath: util['browserPath'],
-    viewport: null,
-    ignoreHTTPSErrors: true,
-    args: util['browserArgs'],
-  });
-  const page = await context.newPage();
-  try {
-    await page.goto(url);
-  }
-  catch (error) {
-    console.error("Failed call goto!");
-    context.close();
-    return [-1, -1];
-  }
-
-  try {
-    // For perf test, index is 8; For correctness, 2.
-    await page.waitForSelector(`#timings > tbody > tr:nth-child(${index}) > td:nth-child(2)`, { timeout: util.timeout });
-  } catch (err) {
-    await context.close();
-    console.error("Result not ready!");
-    return [-1, -1];
-  }
-  return [context, page];
-}
-
-async function queryTable(page, selector) {
-  let index = 1;
-  let result = '-1 ms';
-  while (true) {
-    const typeElem = await page.$('#timings > tbody > tr:nth-child(' + index + ') > td:nth-child(1)');
-    if (typeElem == null) {
-      break;
-    }
-    const type = await typeElem.evaluate(element => element.textContent);
-    if (type.includes(selector)) {
-      const valueElem = await page.$('#timings > tbody > tr:nth-child(' + index + ') > td:nth-child(2)');
-      result = await valueElem.evaluate(element => parseFloat(element.textContent.replace(' ms', '')));
-      break;
-    }
-    index += 1;
-  }
-  return result;
-}
-*/
-
 async function gotoURL(url, util) {
   const context = await chromium.launchPersistentContext(util.userDataDir, {
     headless: false,
@@ -112,7 +62,11 @@ async function queryTable(page, expectedType, timeout) {
     }
     const type = await page.$eval(selector + ' > td:nth-child(1)', el => el.textContent);
     if (type.includes(expectedType)) {
-      result = await page.$eval(selector + ' > td:nth-child(2)', el => parseFloat(el.textContent.replace(' ms', '')));
+      if (expectedType.includes('Prediction')) {
+        result = await page.$eval(selector + ' > td:nth-child(2)', el => el.textContent);
+      } else {
+        result = await page.$eval(selector + ' > td:nth-child(2)', el => parseFloat(el.textContent.replace(' ms', '')));
+      }
       break;
     }
     index += 1;

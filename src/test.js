@@ -5,9 +5,10 @@ const { chromium } = require('playwright');
 const path = require('path');
 const style = require('./style.js')
 const util = require('./util.js')
-
+const report = require('./report.js')
+// For perf test and correctness test.
 const benchmark = require('./benchmark.js');
-const correctness = require('./correctness.js');
+// For unit test.
 const unittest = require('./unittest.js');
 
 async function sendResults(unitResultTable, perfResultTable, correctnessResult, timestamp) {
@@ -29,13 +30,22 @@ async function sendResults(unitResultTable, perfResultTable, correctnessResult, 
 }
 
 async function runAllTests() {
+    // Unit test.
     let startTime = new Date();
     let timestamp = util.getTimestamp(startTime);
-    const unitResult = await unittest.run();
-    const correctnessResult = await correctness.run();
-    const perfResult =  await benchmark.run();
+    const [unitResults, failIndex] = await unittest.run();
+    const unitResultsTable = report.reportUnittest(unitResults, failIndex, startTime);
 
-    await sendResults(unitResult, perfResult, correctnessResult, timestamp);
+    // Correctness test.
+    startTime = new Date();
+    const correctnessResults = await benchmark.run(['Prediction'], 'correctness');
+    const correctnessResultsTable = report.reportCorrectness(correctnessResults, startTime);
+
+    // Perf test.
+    startTime = new Date();
+    const perfResults = await benchmark.run(['average', 'Best', 'Warmup'], 'performance');
+    const perfResultsTable = report.report(perfResults, startTime);
+    await sendResults(unitResultsTable, perfResultsTable, correctnessResultsTable, timestamp);
 }
 
 module.exports = {

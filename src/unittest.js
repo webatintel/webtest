@@ -3,7 +3,6 @@
 const fs = require('fs');
 const { chromium } = require('playwright');
 const util = require('./util.js')
-const report = require('./report_unittest.js')
 
 async function run() {
   if (!fs.existsSync(util.resultsDir)) {
@@ -43,10 +42,8 @@ async function run() {
   })
   failIndex = failIndex > 0 ? failIndex : 0;
   results[results.length] = summary;
-
-  var unitResultTable = report(results, failIndex, startTime);
-
-  return unitResultTable;
+  // TODO: get the failIndex from summary directly.
+  return [results, failIndex];
 }
 module.exports = {
   run: run

@@ -2,7 +2,7 @@
 
 const util = require('./util.js');
 
-function getTableFromResults(results, name, duration){
+function getTableFromResults(results, name, duration) {
   const goodStyle = 'style="color:green"';
   const badStyle = 'style="color:red"';
   const neutralStyle = 'style="color:black"';
@@ -24,14 +24,48 @@ function getTableFromResults(results, name, duration){
   return resultsTable;
 }
 
-function report(results, resultsBest, resultsWarmup, startTime) {
-  // resultTable
+function report(results, startTime) {
   const duration = util.getDuration(startTime, new Date());
-  let resultsTable = getTableFromResults(results, 'Average', duration) + '<br>';
-  resultsTable += getTableFromResults(resultsBest, 'Best', duration) + '<br>';
-  resultsTable += getTableFromResults(resultsWarmup, 'Warmup', duration);
+  let resultsTable = getTableFromResults(results['average'], 'Average', duration) + '<br>';
+  resultsTable += getTableFromResults(results['Best'], 'Best', duration) + '<br>';
+  resultsTable += getTableFromResults(results['Warmup'], 'Warmup', duration);
 
   return resultsTable;
 }
 
-module.exports = report;
+function reportCorrectness(results, startTime) {
+  const goodStyle = 'style="color:green"';
+  const badStyle = 'style="color:red"';
+  const neutralStyle = 'style="color:black"';
+  const duration = util.getDuration(startTime, new Date());
+  let resultsTable = `<table><tr><th>Correctness(Duration: ${duration})</th><th>WebGPU</th><th>WebGL</th><th>WASM</th><th>CPU</th></tr>`;
+  for (let result of results['Prediction']) {
+    let webgpuValue = result[util.backends.indexOf('webgpu') + 1];
+    resultsTable += `<tr><td>${result[0]}</td><td>${result[1]}</td>`;
+    for (let i = 1; i < util.backends.length; i++) {
+      let style = webgpuValue == 0 || result[i + 1] == 0 ? neutralStyle : (webgpuValue < result[i + 1] ? goodStyle : badStyle);
+      resultsTable += `<td>${result[i + 1]}</td></td>`;
+    }
+    resultsTable += '</tr>';
+  }
+  resultsTable += '</table>';
+  return resultsTable;
+}
+
+function reportUnittest(results, failIndex, startTime) {
+  let resultsTable = `<table><tr><th>WebGPU Unit Test Results (FAILED: ${failIndex}; Duration: ${util.getDuration(startTime, new Date())})</th></tr>`;
+
+  for (let result of results) {
+    resultsTable += `<tr><td>${result}</td></td>`;
+    resultsTable += '</tr>';
+  }
+  resultsTable += '</table>';
+
+  return resultsTable;
+}
+
+module.exports = {
+  report: report,
+  reportCorrectness: reportCorrectness,
+  reportUnittest: reportUnittest
+};

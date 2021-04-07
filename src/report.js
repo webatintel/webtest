@@ -52,8 +52,8 @@ function reportCorrectness(results, startTime) {
   return resultsTable;
 }
 
-function reportUnittest(results, failIndex, startTime) {
-  let resultsTable = `<table><tr><th>WebGPU Unit Test Results (FAILED: ${failIndex}; Duration: ${util.getDuration(startTime, new Date())})</th></tr>`;
+function reportUnittest(results, startTime) {
+  let resultsTable = `<table><tr><th>WebGPU Unit Test Results (FAILED: ${results.length - 1}; Duration: ${util.getDuration(startTime, new Date())})</th></tr>`;
 
   for (let result of results) {
     resultsTable += `<tr><td>${result}</td></td>`;

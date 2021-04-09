@@ -21,23 +21,29 @@ async function run() {
 
   let results = [];
   let failIndex = 0;
+  let summary = '';
   var lines = require('fs').readFileSync(logFile, 'utf-8')
     .split('\n')
     .filter(Boolean);
 
   lines.forEach(function (line) {
     console.log(line);
-    const executed = line.includes(': Executed');
-    if (line.includes('FAILED') && executed === false) {
+    if (line.includes('FAILED')) {
       if (failIndex < 20) {
         results[failIndex] = line;
       }
       failIndex++;
-    } else if (executed) {
-      results[results.length] = line;
+    }
+    if (line.includes(': Executed')) {
+      summary = line;
+      // Executed line also include FAILED.
+      failIndex--;
     }
   })
-  return results;
+  failIndex = failIndex > 0 ? failIndex : 0;
+  results[results.length] = summary;
+  // TODO: get the failIndex from summary directly.
+  return [results, failIndex];
 }
 module.exports = {
   run: run

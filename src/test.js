@@ -33,8 +33,8 @@ async function runAllTests() {
     // Unit test.
     let startTime = new Date();
     let timestamp = util.getTimestamp(startTime);
-    const unitResults= await unittest.run();
-    const unitResultsTable = report.reportUnittest(unitResults, startTime);
+    const [unitResults, failIndex] = await unittest.run();
+    const unitResultsTable = report.reportUnittest(unitResults, failIndex, startTime);
 
     // Correctness test.
     startTime = new Date();

@@ -24,31 +24,42 @@ function getTableFromResults(results, name, duration) {
   return resultsTable;
 }
 
-function report(results, startTime) {
+function firstLettertoUpperCase(str){
+  if (typeof str !== 'string') return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function report(results, selectorValues, startTime) {
   const duration = util.getDuration(startTime, new Date());
-  let resultsTable = getTableFromResults(results['average'], 'Average', duration) + '<br>';
-  resultsTable += getTableFromResults(results['Best'], 'Best', duration) + '<br>';
-  resultsTable += getTableFromResults(results['Warmup'], 'Warmup', duration);
+  let resultsTable = '';
+  selectorValues.forEach(function (selectorValue) {
+    resultsTable += getTableFromResults(results[selectorValue], firstLettertoUpperCase(selectorValue), duration) + '<br>';
+  });
 
   return resultsTable;
 }
 
-function reportCorrectness(results, startTime) {
+function reportCorrectness(results, selectorValues, startTime) {
   const goodStyle = 'style="color:green"';
   const badStyle = 'style="color:red"';
   const neutralStyle = 'style="color:black"';
   const duration = util.getDuration(startTime, new Date());
-  let resultsTable = `<table><tr><th>Correctness(Duration: ${duration})</th><th>WebGPU</th><th>WebGL</th><th>WASM</th><th>CPU</th></tr>`;
-  for (let result of results['Prediction']) {
-    let webgpuValue = result[util.backends.indexOf('webgpu') + 1];
-    resultsTable += `<tr><td>${result[0]}</td><td>${result[1]}</td>`;
-    for (let i = 1; i < util.backends.length; i++) {
-      let style = webgpuValue == 0 || result[i + 1] == 0 ? neutralStyle : (webgpuValue < result[i + 1] ? goodStyle : badStyle);
-      resultsTable += `<td>${result[i + 1]}</td></td>`;
+  let resultsTable = '';
+  selectorValues.forEach(function (selectorValue) {
+    // TODO: change Correctness to selectorValue.
+    resultsTable = `<table><tr><th>Correctness(Duration: ${duration})</th><th>WebGPU</th><th>WebGL</th><th>WASM</th><th>CPU</th></tr>`
+    for (let result of results[selectorValue]) {
+      let webgpuValue = result[util.backends.indexOf('webgpu') + 1];
+      resultsTable += `<tr><td>${result[0]}</td><td>${result[1]}</td>`;
+      for (let i = 1; i < util.backends.length; i++) {
+        let style = webgpuValue == 0 || result[i + 1] == 0 ? neutralStyle : (webgpuValue < result[i + 1] ? goodStyle : badStyle);
+        resultsTable += `<td>${result[i + 1]}</td></td>`;
+      }
+      resultsTable += '</tr>';
     }
-    resultsTable += '</tr>';
-  }
-  resultsTable += '</table>';
+    resultsTable += '</table>';
+  });
+
   return resultsTable;
 }
 

@@ -50,7 +50,7 @@ async function gotoURL(url, util) {
   return [context, page];
 }
 
-async function queryTable(page, expectedType, timeout) {
+async function queryTable(page, expectedType, timeout, resultType) {
   let index = 1;
   let result = -1;
   while (true) {
@@ -62,7 +62,7 @@ async function queryTable(page, expectedType, timeout) {
     }
     const type = await page.$eval(selector + ' > td:nth-child(1)', el => el.textContent);
     if (type.includes(expectedType)) {
-      if (expectedType.includes('Prediction')) {
+      if (resultType === 'string') {
         result = await page.$eval(selector + ' > td:nth-child(2)', el => el.textContent);
       } else {
         result = await page.$eval(selector + ' > td:nth-child(2)', el => parseFloat(el.textContent.replace(' ms', '')));

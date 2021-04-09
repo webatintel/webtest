@@ -1,8 +1,8 @@
 'use strict';
 
 const fs = require('fs');
+const { chromium } = require('playwright');
 const report = require('./report.js')
-const style = require('./style.js')
 const util = require('./util.js')
 
 function getUrl(i) {
@@ -20,21 +20,39 @@ async function runBenchmark(i) {
     return Promise.resolve(0.1);
   }
 
-  const [context, page] = await style.gotoURL(getUrl(i), util);
-  if (context == -1) {
-    return [-1, -1, -1];
+  const context = await chromium.launchPersistentContext(util.userDataDir, {
+    headless: false,
+    executablePath: util['browserPath'],
+    viewport: null,
+    ignoreHTTPSErrors: true,
+    args: util['browserArgs'],
+  });
+  const page = await context.newPage();
+  await page.goto(getUrl(i));
+
+  let index = 1;
+  let result = -1;
+  let expected_type = 'average';
+  while (true) {
+    let selector = '#timings > tbody > tr:nth-child(' + index + ')';
+    try {
+      await page.waitForSelector(selector, { timeout: util.timeout });
+    } catch (err) {
+      break;
+    }
+    const type = await page.$eval(selector + ' > td:nth-child(1)', el => el.textContent);
+    if (type.includes(expected_type)) {
+      result = await page.$eval(selector + ' > td:nth-child(2)', el => parseFloat(el.textContent.replace(' ms', '')));
+      break;
+    }
+    index += 1;
   }
 
-  let resultAverage = await style.queryTable(page, 'average', util.timeout);
-  let resultBest = await style.queryTable(page, 'Best time', util.timeout);
-  let resultWarmup = await style.queryTable(page, 'Warmup time', util.timeout);
-
   await context.close();
-
-  return [resultAverage, resultBest, resultWarmup];
+  return Promise.resolve(result);
 }
 
-async function run() {
+async function runBenchmarks() {
   let startTime = new Date();
   let benchmarksLen = util.benchmarks.length;
   let target = util.args.target;
@@ -60,8 +78,6 @@ async function run() {
 
   let previousTestName = '';
   let results = [];
-  let resultsBest = [];
-  let resultsWarmup = [];
   for (let i = 0; i < benchmarksLen; i++) {
     if (indexes.indexOf(i) < 0) {
       continue;
@@ -71,20 +87,15 @@ async function run() {
     let backend = benchmark[benchmark.length - 1];
     if (testName != previousTestName) {
       results.push([testName].concat(Array(util.backends.length).fill(0)));
-      resultsBest.push([testName].concat(Array(util.backends.length).fill(0)));
-      resultsWarmup.push([testName].concat(Array(util.backends.length).fill(0)));
       previousTestName = testName;
     }
-    let [result, resultBest, resultWarmup] = await runBenchmark(i);
-    // TODO: move these into array.
+    let result = await runBenchmark(i);
     results[results.length - 1][util.backends.indexOf(backend) + 1] = result;
-    resultsBest[resultsBest.length - 1][util.backends.indexOf(backend) + 1] = resultBest;
-    resultsWarmup[resultsWarmup.length - 1][util.backends.indexOf(backend) + 1] = resultWarmup;
     console.log(`[${i + 1}/${benchmarksLen}] ${benchmark}: ${result}ms`);
   }
-  return report(results, resultsBest, resultsWarmup, startTime);
+  await report(results, startTime);
 }
 
 module.exports = {
-  run: run
+  runBenchmarks: runBenchmarks
 }

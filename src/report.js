@@ -1,12 +1,26 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const util = require('./util.js');
 
-function getTableFromResults(results, name, duration){
+async function report(results, startTime) {
+  let timestamp = util.getTimestamp(startTime);
+
+  // style
+  const htmlStyle = '<style> \
+		* {font-family: Calibri (Body);} \
+	  table {border-collapse: collapse;} \
+	  table, td, th {border: 1px solid black;} \
+	  th {background-color: #0071c5; color: #ffffff; font-weight: normal;} \
+    </style>';
+
+  // resultTable
+  let resultsTable = '<table><tr><th>Benchmark</th><th>WebGPU (ms)</th><th>WebGL (ms)</th><th>WebGPU vs. WebGL (%)</th><th>WASM (ms)</th><th>WebGPU vs. WASM (%)</th><th>CPU (ms)</th><th>WebGPU vs. CPU (%)</th></tr>';
   const goodStyle = 'style="color:green"';
   const badStyle = 'style="color:red"';
   const neutralStyle = 'style="color:black"';
-  let resultsTable = `<table><tr><th>Perf(${name}; Duration: ${duration})</th><th>WebGPU (ms)</th><th>WebGL (ms)</th><th>WebGPU vs. WebGL (%)</th><th>WASM (ms)</th><th>WebGPU vs. WASM (%)</th><th>CPU (ms)</th><th>WebGPU vs. CPU (%)</th></tr>`;
+
   for (let result of results) {
     let webgpuValue = result[util.backends.indexOf('webgpu') + 1];
     resultsTable += `<tr><td>${result[0]}</td><td>${result[1]}</td>`;
@@ -20,18 +34,23 @@ function getTableFromResults(results, name, duration){
     }
     resultsTable += '</tr>';
   }
-  resultsTable += '</table>';
-  return resultsTable;
-}
+  resultsTable += '</table><br>';
 
-function report(results, resultsBest, resultsWarmup, startTime) {
-  // resultTable
-  const duration = util.getDuration(startTime, new Date());
-  let resultsTable = getTableFromResults(results, 'Average', duration) + '<br>';
-  resultsTable += getTableFromResults(resultsBest, 'Best', duration) + '<br>';
-  resultsTable += getTableFromResults(resultsWarmup, 'Warmup', duration);
+  // configTable
+  util['duration'] = util.getDuration(startTime, new Date());
+  let configTable = '<table><tr><th>Category</th><th>Info</th></tr>';
+  for (let category of ['duration', 'hostname', 'platform', 'url', 'browserPath', 'browserArgs', 'cpuName', 'gpuName', 'powerPlan', 'gpuDriverVersion', 'screenResolution', 'chromeVersion', 'chromeRevision']) {
+    configTable += `<tr><td>${category}</td><td>${util[category]}</td></tr>`;
+  }
+  configTable += '</table>'
 
-  return resultsTable;
+  const html = htmlStyle + resultsTable + configTable;
+  await fs.promises.writeFile(path.join(util.resultsDir, `${timestamp}.html`), html);
+
+  if ('email' in util.args) {
+    let subject = '[TFJS Test] ' + util['hostname'] + ' ' + timestamp;
+    await util.sendMail(util.args['email'], subject, html);
+  }
 }
 
 module.exports = report;

@@ -38,13 +38,16 @@ async function runAllTests() {
 
     // Correctness test.
     startTime = new Date();
-    const correctnessResults = await benchmark.run(['Prediction'], 'correctness');
-    const correctnessResultsTable = report.reportCorrectness(correctnessResults, startTime);
+    let selectorValues = ['Prediction'];
+    const correctnessResults = await benchmark.run(selectorValues, 'correctness', 'string');
+    const correctnessResultsTable = report.reportCorrectness(correctnessResults, selectorValues, startTime);
 
     // Perf test.
     startTime = new Date();
-    const perfResults = await benchmark.run(['average', 'Best', 'Warmup'], 'performance');
-    const perfResultsTable = report.report(perfResults, startTime);
+    selectorValues = ['average', 'Best', 'Warmup'];
+    const perfResults = await benchmark.run(selectorValues, 'performance');
+    const perfResultsTable = report.report(perfResults, selectorValues, startTime);
+
     await sendResults(unitResultsTable, perfResultsTable, correctnessResultsTable, timestamp);
 }
 

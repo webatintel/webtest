@@ -14,7 +14,7 @@ function getUrl(i, task) {
   return fullUrl;
 }
 
-async function runBenchmark(i, selectorValues, task) {
+async function runBenchmark(i, selectorValues, task, resultType) {
   // TODO: dryrun is not tested.
   if (util.dryrun) {
     return Promise.resolve(0.1);
@@ -27,14 +27,14 @@ async function runBenchmark(i, selectorValues, task) {
 
   let results = [];
   for (const selectorValue of selectorValues) {
-    results[selectorValue] = await style.queryTable(page, selectorValue, util.timeout);
+    results[selectorValue] = await style.queryTable(page, selectorValue, util.timeout, resultType);
   }
 
   await context.close();
   return results;
 }
 
-async function run(selectorValues, task) {
+async function run(selectorValues, task, resultType = 'float') {
   let startTime = new Date();
   let benchmarksLen = util.benchmarks.length;
   let target = util.args.target;
@@ -76,7 +76,7 @@ async function run(selectorValues, task) {
       });
       previousTestName = testName;
     }
-    let result = await runBenchmark(i, selectorValues, task);
+    let result = await runBenchmark(i, selectorValues, task, resultType);
     selectorValues.forEach(function (selectorValue) {
       results[selectorValue][results[selectorValue].length - 1][util.backends.indexOf(backend) + 1] = result != null ? result[selectorValue] : -1;
     });

@@ -1,101 +1,172 @@
 'use strict';
 
 const fs = require('fs');
+const path = require('path');
 const { chromium } = require('playwright');
-const report = require('./report.js')
 const util = require('./util.js')
 
-function getUrl(i) {
-  let fullUrl = `${util.url}?task=performance&warmup=${util.warmupTimes}&run=${util.runTimes}`;
-  for (let index in util.parameters) {
-    if (util.benchmarks[i][index]) {
-      fullUrl += `&${util.parameters[index]}=${util.benchmarks[i][index]}`;
-    }
-  }
-  return fullUrl;
+function cartesianProduct(arr) {
+  return arr.reduce(function (a, b) {
+    return a.map(function (x) {
+      return b.map(function (y) {
+        return x.concat([y]);
+      })
+    }).reduce(function (a, b) { return a.concat(b) }, [])
+  }, [[]])
 }
 
-async function runBenchmark(i) {
-  if (util.dryrun) {
-    return Promise.resolve(0.1);
-  }
-
-  const context = await chromium.launchPersistentContext(util.userDataDir, {
-    headless: false,
-    executablePath: util['browserPath'],
-    viewport: null,
-    ignoreHTTPSErrors: true,
-    args: util['browserArgs'],
-  });
-  const page = await context.newPage();
-  await page.goto(getUrl(i));
-
-  let index = 1;
-  let result = -1;
-  let expected_type = 'average';
-  while (true) {
-    let selector = '#timings > tbody > tr:nth-child(' + index + ')';
-    try {
-      await page.waitForSelector(selector, { timeout: util.timeout });
-    } catch (err) {
-      break;
-    }
-    const type = await page.$eval(selector + ' > td:nth-child(1)', el => el.textContent);
-    if (type.includes(expected_type)) {
-      result = await page.$eval(selector + ' > td:nth-child(2)', el => parseFloat(el.textContent.replace(' ms', '')));
-      break;
-    }
-    index += 1;
-  }
-
-  await context.close();
-  return Promise.resolve(result);
+function getDuration(start, end) {
+  let diff = Math.abs(start - end);
+  const hours = Math.floor(diff / 3600000);
+  diff -= hours * 3600000;
+  const minutes = Math.floor(diff / 60000);
+  diff -= minutes * 60000;
+  const seconds = Math.floor(diff / 1000);
+  return `${hours}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}`;
 }
 
-async function runBenchmarks() {
+function intersect(a, b) {
+  return a.filter(v => b.includes(v));
+}
+
+async function runBenchmark(target) {
   let startTime = new Date();
-  let benchmarksLen = util.benchmarks.length;
-  let target = util.args.target;
-  if (target === undefined) {
-    target = '0-' + (benchmarksLen - 1);
-  }
-  let indexes = [];
-  let fields = target.split(',');
 
-  for (let field of fields) {
-    if (field.indexOf('-') > -1) {
-      for (let i = parseInt(field.split('-')[0]); i <= parseInt(field.split('-')[1]); i++) {
-        indexes.push(parseInt(i));
-      }
-    } else {
-      indexes.push(parseInt(field));
+  // get benchmarks
+  let benchmarks = [];
+  let targetJson = path.join(path.resolve(__dirname), `${target}.json`);
+  let targetBenchmarks = JSON.parse(fs.readFileSync(targetJson));
+  let validBenchmarkNames = [];
+  if ('benchmark' in util.args) {
+    validBenchmarkNames = util.args['benchmark'].split(',');
+  } else {
+    for (let benchmark of targetBenchmarks) {
+      validBenchmarkNames.push(benchmark['benchmark']);
     }
   }
-
-  if (!fs.existsSync(util.resultsDir)) {
-    fs.mkdirSync(util.resultsDir, { recursive: true });
-  }
-
-  let previousTestName = '';
-  let results = [];
-  for (let i = 0; i < benchmarksLen; i++) {
-    if (indexes.indexOf(i) < 0) {
+  for (let benchmark of targetBenchmarks) {
+    let benchmarkName = benchmark['benchmark'];
+    if (!validBenchmarkNames.includes(benchmarkName)) {
       continue;
     }
-    let benchmark = util.benchmarks[i];
-    let testName = benchmark.slice(0, -1).join('-');
-    let backend = benchmark[benchmark.length - 1];
-    if (testName != previousTestName) {
-      results.push([testName].concat(Array(util.backends.length).fill(0)));
-      previousTestName = testName;
+    if ('backend' in util.args) {
+      benchmark['backend'] = intersect(benchmark['backend'], util.args['backend'].split(','));
     }
-    let result = await runBenchmark(i);
-    results[results.length - 1][util.backends.indexOf(backend) + 1] = result;
-    console.log(`[${i + 1}/${benchmarksLen}] ${benchmark}: ${result}ms`);
+    let seqArray = [];
+    for (let p of util.parameters) {
+      seqArray.push(p in benchmark ? (Array.isArray(benchmark[p]) ? benchmark[p] : [benchmark[p]]) : ['']);
+    }
+    benchmarks = benchmarks.concat(cartesianProduct(seqArray));
   }
-  await report(results, startTime);
+
+  // run benchmarks
+  let benchmarksLen = benchmarks.length;
+  let previousBenchmarkName = '';
+  let results = []; // format: testName, warmup_webgpu, average_webgpu, best_webgpu, warmup_webgl, average_webgl, best_webgl, warmup_wasm, average_wasm, best_wasm
+  let defaultValue;
+  if (target == 'conformance') {
+    defaultValue = 'true';
+  } else if (target == 'performance') {
+    defaultValue = -1;
+  }
+  let metrics = util.targetMetrics[target];
+  let metricsLength = metrics.length;
+  let context;
+  let page;
+  if (!util.dryrun) {
+    context = await chromium.launchPersistentContext(util.userDataDir, {
+      headless: false,
+      executablePath: util['browserPath'],
+      viewport: null,
+      ignoreHTTPSErrors: true,
+      args: util['browserArgs'],
+    });
+    page = await context.newPage();
+  }
+
+  for (let i = 0; i < benchmarksLen; i++) {
+    // prepare result placeholder
+    let benchmark = benchmarks[i];
+    let benchmarkName = benchmark.slice(0, -1).join('-');
+    if (benchmarkName != previousBenchmarkName) {
+      results.push([benchmarkName].concat(Array(util.targetBackends[target].length * metricsLength).fill(defaultValue)));
+      previousBenchmarkName = benchmarkName;
+    }
+
+    if (util.dryrun) {
+      for (let i = 1; i < results[results.length - 1].length; i++) {
+        if (target == 'conformance') {
+          results[results.length - 1][i] = 'true';
+        } else if (target == 'performance') {
+          results[results.length - 1][i] = i;
+        }
+      }
+    } else {
+      // get url
+      let baseUrl;
+      if ('url' in util.args) {
+        baseUrl = util.args['url'];
+      } else {
+        baseUrl = util.url;
+      }
+      let task = '';
+      if (target == 'conformance') {
+        task = 'correctness';
+      } else if (target == 'performance') {
+        task = 'performance';
+      }
+      let warmupTimes;
+      if ('warmup-times' in util.args) {
+        warmupTimes = parseInt(util.args['warmup-times']);
+      } else {
+        warmupTimes = 50;
+      }
+      let runTimes;
+      if ('run-times' in util.args) {
+        runTimes = parseInt(util.args['run-times']);
+      } else {
+        runTimes = 50;
+      }
+      let url = `${baseUrl}?task=${task}&warmup=${warmupTimes}&run=${runTimes}`;
+      for (let index = 0; index < util.parameters.length; index++) {
+        if (benchmarks[i][index]) {
+          url += `&${util.parameters[index]}=${benchmarks[i][index]}`;
+        }
+      }
+
+      // get result
+      await page.goto(url);
+      let metricIndex = 0;
+      let typeIndex = 1;
+      let backend = benchmark[benchmark.length - 1];
+      while (metricIndex < metricsLength) {
+        let selector = '#timings > tbody > tr:nth-child(' + typeIndex + ')';
+        try {
+          await page.waitForSelector(selector, { timeout: util.timeout });
+        } catch (err) {
+          break;
+        }
+        const type = await page.$eval(selector + ' > td:nth-child(1)', el => el.textContent);
+        if (type.includes(metrics[metricIndex])) {
+          let result = await page.$eval(selector + ' > td:nth-child(2)', el => el.textContent);
+          if (target == 'performance') {
+            result = parseFloat(result.replace(' ms', ''));
+          }
+          results[results.length - 1][util.targetBackends[target].indexOf(backend) * metricsLength + metricIndex + 1] = result;
+          metricIndex += 1;
+        }
+        typeIndex += 1;
+      }
+    }
+    console.log(`[${i + 1}/${benchmarksLen}] ${benchmark}: ${results[results.length - 1]}`);
+  }
+
+  if (!util.dryrun) {
+    await context.close();
+  }
+
+  results.push(getDuration(startTime, new Date()))
+  return Promise.resolve(results);
 }
 
-module.exports = {
-  runBenchmarks: runBenchmarks
-}
+module.exports = runBenchmark;

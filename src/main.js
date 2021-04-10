@@ -1,10 +1,10 @@
 'use strict';
 
-const { exit } = require('yargs');
-const benchmark = require('./benchmark.js');
-const config = require('./config.js');
 const fs = require('fs');
-const path = require('path');
+const runBenchmark = require('./benchmark.js');
+const config = require('./config.js');
+const report = require('./report.js')
+const runUnit = require('./unit.js');
 const util = require('./util.js');
 
 util.args = require('yargs')
@@ -17,9 +17,9 @@ util.args = require('yargs')
     type: 'string',
     describe: 'benchmark to run, splitted by comma',
   })
-  .option('benchmark-file', {
+  .option('browser', {
     type: 'string',
-    describe: 'benchmark file, default to benchmark.json',
+    describe: 'browser path',
   })
   .option('dryrun', {
     type: 'boolean',
@@ -30,22 +30,27 @@ util.args = require('yargs')
     type: 'string',
     describe: 'email to',
   })
-  .option('list', {
-    type: 'boolean',
-    describe: 'list benchmarks',
-  })
   .option('repeat', {
     type: 'number',
     describe: 'repeat times',
     default: 1,
   })
-  .option('target', {
-    type: 'string',
-    describe: 'index of benchmarks to run, e.g., 1-2,5,6',
-  })
   .option('run-times', {
     type: 'integer',
     describe: 'run times',
+  })
+  .option('target', {
+    type: 'string',
+    describe: 'test target, splitted by comma',
+  })
+  .option('tfjs-dir', {
+    type: 'string',
+    describe: 'tfjs dir',
+  })
+  .option('timestamp', {
+    type: 'string',
+    describe: 'timestamp format, day or second',
+    default: 'second',
   })
   .option('url', {
     type: 'string',
@@ -61,60 +66,31 @@ util.args = require('yargs')
   .help()
   .argv;
 
-function cartesianProduct(arr) {
-  return arr.reduce(function (a, b) {
-    return a.map(function (x) {
-      return b.map(function (y) {
-        return x.concat([y]);
-      })
-    }).reduce(function (a, b) { return a.concat(b) }, [])
-  }, [[]])
+function padZero(str) {
+  return ('0' + str).slice(-2);
 }
 
-function intersect(a, b) {
-  return a.filter(v => b.includes(v));
+function getTimestamp(format) {
+  const date = new Date();
+  let timestamp = date.getFullYear() + padZero(date.getMonth() + 1) + padZero(date.getDate());
+  if (format == 'second') {
+    timestamp += padZero(date.getHours()) + padZero(date.getMinutes()) + padZero(date.getSeconds());
+  }
+  return timestamp;
 }
 
-function parseArgs() {
-  let benchmarkFile = '';
-  if ('benchmark-file' in util.args) {
-    benchmarkFile = util.args['benchmark-file'];
-  } else {
-    benchmarkFile = path.join(path.resolve(__dirname), 'benchmark.json');
+async function main() {
+  let browserPath;
+  if ('browser' in util.args) {
+    browserPath = util.args['browser'];
+  } else if (util.platform === 'darwin') {
+    browserPath = '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary';
+  } else if (util.platform === 'linux') {
+    browserPath = '/usr/bin/google-chrome-unstable';
+  } else if (util.platform === 'win32') {
+    browserPath = `${process.env.LOCALAPPDATA}/Google/Chrome SxS/Application/chrome.exe`;
   }
-  let rawBenchmarks = JSON.parse(fs.readFileSync(benchmarkFile));
-  let validBenchmarkNames = [];
-  if ('benchmark' in util.args) {
-    validBenchmarkNames = util.args['benchmark'].split(',');
-  } else {
-    for (let benchmark of rawBenchmarks) {
-      validBenchmarkNames.push(benchmark['benchmark']);
-    }
-  }
-
-  let benchmarks = [];
-  for (let benchmark of rawBenchmarks) {
-    let benchmarkName = benchmark['benchmark'];
-    if (!validBenchmarkNames.includes(benchmarkName)) {
-      continue;
-    }
-    if ('backend' in util.args) {
-      benchmark['backend'] = intersect(benchmark['backend'], util.args['backend'].split(','));
-    }
-    let seqArray = [];
-    for (let p of util.parameters) {
-      seqArray.push(p in benchmark ? (Array.isArray(benchmark[p]) ? benchmark[p] : [benchmark[p]]) : ['']);
-    }
-    benchmarks = benchmarks.concat(cartesianProduct(seqArray));
-  }
-  util.benchmarks = benchmarks;
-
-  if ('list' in util.args) {
-    for (let index in util.benchmarks) {
-      console.log(`${index}: ${util.benchmarks[index]}`);
-    }
-    exit(0);
-  }
+  util.browserPath = browserPath;
 
   if ('dryrun' in util.args) {
     util.dryrun = true;
@@ -122,34 +98,38 @@ function parseArgs() {
     util.dryrun = false;
   }
 
-  if ('run-times' in util.args) {
-    util.runTimes = parseInt(util.args['run-times']);
-  } else {
-    util.runTimes = 50;
+  util.timestamp = getTimestamp(util.args['timestamp']);
+
+  if (!util.dryrun) {
+    await config();
   }
 
-  if ('warmup-times' in util.args) {
-    util.warmupTimes = parseInt(util.args['warmup-times']);
+  let targets = [];
+  if ('target' in util.args) {
+    targets = util.args['target'].split(',');
   } else {
-    util.warmupTimes = 50;
+    targets = ['conformance', 'performance', 'unit'];
   }
 
-  if ('url' in util.args) {
-    util.url = util.args['url'];
-  } else {
-    util.url = 'http://wp-27.sh.intel.com/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/';
+  if (!fs.existsSync(util.resultsDir)) {
+    fs.mkdirSync(util.resultsDir, { recursive: true });
   }
-}
 
-async function main() {
-  parseArgs();
-  await config();
-
+  let results = {};
   for (let i = 0; i < util.args['repeat']; i++) {
     if (util.args['repeat'] > 1) {
       console.log(`== Test round ${i + 1}/${util.args['repeat']} ==`);
     }
-    await benchmark.runBenchmarks();
+
+    for (let target of targets) {
+      console.log(`${target} test`);
+      if (['conformance', 'performance'].indexOf(target) >= 0) {
+        results[target] = await runBenchmark(target);
+      } else if (target == 'unit') {
+        results[target] = await runUnit();
+      }
+    }
+    await report(results);
   }
 }
 

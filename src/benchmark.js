@@ -84,6 +84,31 @@ async function runBenchmark(target) {
     page = await context.newPage();
   }
 
+  let baseUrl;
+  if ('url' in util.args) {
+    baseUrl = util.args['url'];
+  } else {
+    baseUrl = util.url;
+  }
+  let task = '';
+  if (target == 'conformance') {
+    task = 'correctness';
+  } else if (target == 'performance') {
+    task = 'performance';
+  }
+  let warmupTimes;
+  if ('warmup-times' in util.args) {
+    warmupTimes = parseInt(util.args['warmup-times']);
+  } else {
+    warmupTimes = 50;
+  }
+  let runTimes;
+  if ('run-times' in util.args) {
+    runTimes = parseInt(util.args['run-times']);
+  } else {
+    runTimes = 50;
+  }
+  let needWasmStatus = true;
   for (let i = 0; i < benchmarksLen; i++) {
     // prepare result placeholder
     let benchmark = benchmarks[i];
@@ -103,30 +128,6 @@ async function runBenchmark(target) {
       }
     } else {
       // get url
-      let baseUrl;
-      if ('url' in util.args) {
-        baseUrl = util.args['url'];
-      } else {
-        baseUrl = util.url;
-      }
-      let task = '';
-      if (target == 'conformance') {
-        task = 'correctness';
-      } else if (target == 'performance') {
-        task = 'performance';
-      }
-      let warmupTimes;
-      if ('warmup-times' in util.args) {
-        warmupTimes = parseInt(util.args['warmup-times']);
-      } else {
-        warmupTimes = 50;
-      }
-      let runTimes;
-      if ('run-times' in util.args) {
-        runTimes = parseInt(util.args['run-times']);
-      } else {
-        runTimes = 50;
-      }
       let url = `${baseUrl}?task=${task}&warmup=${warmupTimes}&run=${runTimes}`;
       for (let index = 0; index < util.parameters.length; index++) {
         if (benchmarks[i][index]) {
@@ -156,6 +157,13 @@ async function runBenchmark(target) {
           metricIndex += 1;
         }
         typeIndex += 1;
+      }
+
+      if (target == 'performance' && backend == 'wasm') {
+        let status = await page.$eval('#env', el => el.textContent);
+        let match = status.match('WASM_HAS_MULTITHREAD_SUPPORT: (.*)  WASM_HAS_SIMD_SUPPORT: (.*)  WEBGL_CPU_FORWARD');
+        util.wasmMultithread = match[1];
+        util.wasmSIMD = match[2];
       }
     }
     console.log(`[${i + 1}/${benchmarksLen}] ${benchmark}: ${results[results.length - 1]}`);

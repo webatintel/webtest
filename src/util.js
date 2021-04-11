@@ -16,7 +16,7 @@ let platform = os.platform();
 
 let targetBackends = {
   'conformance': ['webgpu'],
-  'performance': ['webgpu', 'webgl', 'wasm', 'cpu']
+  'performance': ['webgpu', 'webgl', 'wasm']
 };
 
 // please make sure these metrics are shown up in order

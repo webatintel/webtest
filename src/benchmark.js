@@ -159,11 +159,12 @@ async function runBenchmark(target) {
         typeIndex += 1;
       }
 
-      if (target == 'performance' && backend == 'wasm') {
+      if (needWasmStatus && target == 'performance' && backend == 'wasm') {
         let status = await page.$eval('#env', el => el.textContent);
         let match = status.match('WASM_HAS_MULTITHREAD_SUPPORT: (.*)  WASM_HAS_SIMD_SUPPORT: (.*)  WEBGL_CPU_FORWARD');
         util.wasmMultithread = match[1];
         util.wasmSIMD = match[2];
+        needWasmStatus = false;
       }
     }
     console.log(`[${i + 1}/${benchmarksLen}] ${benchmark}: ${results[results.length - 1]}`);

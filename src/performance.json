@@ -1,9 +1,25 @@
 [
   {
+    "benchmark": "AutoML Image",
+    "backend": ["wasm", "webgl", "webgpu"]
+  },
+  {
     "benchmark": "bodypix",
     "architecture": ["MobileNetV1", "ResNet50"],
     "inputSize": [0.25, 0.5, 0.75],
     "inputType": ["image", "tensor"],
+    "backend": ["wasm", "webgl", "webgpu"]
+  },
+  {
+    "benchmark": "face_detector",
+    "backend": ["wasm", "webgl", "webgpu"]
+  },
+  {
+    "benchmark": "hand_skeleton",
+    "backend": ["wasm", "webgl", "webgpu"]
+  },
+  {
+    "benchmark": "mesh_128",
     "backend": ["wasm", "webgl", "webgpu"]
   },
   {
@@ -15,6 +31,10 @@
     "architecture": ["MobileNetV1", "ResNet50"],
     "inputSize": [256, 512],
     "inputType": ["image", "tensor", "imageBitmap"],
+    "backend": ["wasm", "webgl", "webgpu"]
+  },
+  {
+    "benchmark": "speech-commands",
     "backend": ["wasm", "webgl", "webgpu"]
   }
 ]

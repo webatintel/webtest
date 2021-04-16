@@ -98,6 +98,10 @@ async function main() {
     util.dryrun = false;
   }
 
+  if ('url' in util.args) {
+    util.url = util.args['url'];
+  }
+
   util.timestamp = getTimestamp(util.args['timestamp']);
 
   if (!util.dryrun) {

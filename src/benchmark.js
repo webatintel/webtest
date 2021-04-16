@@ -84,12 +84,6 @@ async function runBenchmark(target) {
     page = await context.newPage();
   }
 
-  let baseUrl;
-  if ('url' in util.args) {
-    baseUrl = util.args['url'];
-  } else {
-    baseUrl = util.url;
-  }
   let task = '';
   if (target == 'conformance') {
     task = 'correctness';
@@ -128,7 +122,7 @@ async function runBenchmark(target) {
       }
     } else {
       // get url
-      let url = `${baseUrl}?task=${task}&warmup=${warmupTimes}&run=${runTimes}`;
+      let url = `${util.url}?task=${task}&warmup=${warmupTimes}&run=${runTimes}`;
       for (let index = 0; index < util.parameters.length; index++) {
         if (benchmarks[i][index]) {
           url += `&${util.parameters[index]}=${benchmarks[i][index]}`;

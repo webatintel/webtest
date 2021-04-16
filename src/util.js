@@ -30,6 +30,15 @@ if (!fs.existsSync(outDir)) {
   fs.mkdirSync(outDir);
 }
 
+let userDataDir;
+if (platform === 'darwin') {
+  userDataDir = `/Users/${os.userInfo().username}/Library/Application Support/Google/Chrome Canary`;
+} else if (platform === 'linux') {
+  userDataDir = `/home/${os.userInfo().username}/.config/google-chrome-unstable`;
+} else if (platform === 'win32') {
+  userDataDir = `${process.env.LOCALAPPDATA}/Google/Chrome SxS/User Data`;
+}
+
 module.exports = {
   'browserArgs': ['--enable-unsafe-webgpu', '--enable-dawn-features=disable_robustness', '--enable-features=WebAssemblySimd,WebAssemblyThreads', '--start-maximized'],
   'hostname': os.hostname(),
@@ -39,7 +48,7 @@ module.exports = {
   'targetMetrics': targetMetrics,
   'outDir': outDir,
   'resultsDir': `${outDir}/results`,
-  'userDataDir': `${outDir}/User Data`,
+  'userDataDir': userDataDir,
   'url': 'http://wp-27.sh.intel.com/workspace/project/tfjswebgpu/tfjs/e2e/benchmarks/local-benchmark/',
   'timeout': 180 * 1000,
 };

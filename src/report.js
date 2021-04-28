@@ -111,8 +111,10 @@ async function report(results) {
   html += configTable;
 
   await fs.writeFileSync(path.join(util.resultsDir, `${util.timestamp}.html`), html);
-  results['performance'].pop()
-  await fs.writeFileSync(path.join(util.resultsDir, `${util.timestamp.substring(0, 8)}.json`), JSON.stringify(results['performance']));
+  if ('performance' in results) {
+    results['performance'].pop();
+    await fs.writeFileSync(path.join(util.resultsDir, `${util.timestamp.substring(0, 8)}.json`), JSON.stringify(results['performance']));
+  }
 
   if ('email' in util.args) {
     let subject = '[TFJS Test] ' + util['hostname'] + ' ' + util.timestamp;

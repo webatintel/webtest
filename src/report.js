@@ -104,7 +104,7 @@ async function report(results) {
   }
 
   let configTable = '<table><tr><th>Category</th><th>Info</th></tr>';
-  for (let category of ['hostname', 'platform', 'url', 'browserPath', 'browserArgs', 'cpuName', 'gpuName', 'powerPlan', 'gpuDriverVersion', 'screenResolution', 'chromeVersion', 'chromeRevision', 'wasmMultithread', 'wasmSIMD']) {
+  for (let category of ['hostname', 'platform', 'url', 'browserPath', 'browserArgs', 'cpuName', 'gpuName', 'powerPlan', 'gpuDeviceId', 'gpuDriverVersion', 'screenResolution', 'chromeVersion', 'chromeRevision', 'wasmMultithread', 'wasmSIMD']) {
     configTable += `<tr><td>${category}</td><td>${util[category]}</td></tr>`;
   }
   configTable += '</table>'

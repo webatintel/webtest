@@ -72,7 +72,7 @@ async function getExtraConfig() {
   const chromeNameElem = await page.$('#inner > tbody > tr:nth-child(1) > td.label');
   let chromeName = await chromeNameElem.evaluate(element => element.innerText);
   const chromeRevisionElem = await page.$('#inner > tbody > tr:nth-child(2) > td.version');
-  let chromeRevision = await chromeRevisionElem.evaluate(element => element.innerText);
+  util['chromeRevision'] = await chromeRevisionElem.evaluate(element => element.innerText);
 
   if (chromeName.includes('Chromium')) {
     chromeName = 'Chromium';
@@ -80,22 +80,31 @@ async function getExtraConfig() {
     chromeName = 'Chrome';
   }
   const versionElement = await page.$('#version');
-  let chromeVersion = await versionElement.evaluate(element => element.innerText);
+  util['chromeVersion'] = await versionElement.evaluate(element => element.innerText);
 
   // GPU driver version
   await page.goto('chrome://gpu');
-  const gpuDriverVersion = await page.evaluate(() => {
+  let gpuInfo = await page.evaluate(() => {
     let table = document.querySelector('#basic-info').querySelector('#info-view-table');
+    let deviceId = '';
+    let driverVersion = '';
     for (let i = 0; i < table.rows.length; i++) {
-      if (table.rows[i].cells[0].innerText === 'Driver version') {
-        return table.rows[i].cells[1].innerText;
+      if (table.rows[i].cells[0].innerText === 'GPU0') {
+        let match = table.rows[i].cells[1].innerText.match('DEVICE=(.*), SUBSYS');
+        deviceId = match[1];
+      } else if (table.rows[i].cells[0].innerText === 'Driver version') {
+        driverVersion = table.rows[i].cells[1].innerText;
+        return [deviceId, driverVersion];
       }
     }
     return 'NA';
   });
 
+  util['gpuDeviceId'] = gpuInfo[0];
+  util['gpuDriverVersion'] = gpuInfo[1];
+
   // screen resolution
-  const screenResolution = await page.evaluate(() => {
+  util['screenResolution'] = await page.evaluate(() => {
     const screenResolutionX = window.screen.width;
     const screenResolutionY = window.screen.height;
     const scaleRatio = window.devicePixelRatio;
@@ -103,11 +112,6 @@ async function getExtraConfig() {
   });
 
   await browser.close();
-
-  util['chromeVersion'] = chromeVersion;
-  util['chromeRevision'] = chromeRevision;
-  util['gpuDriverVersion'] = gpuDriverVersion;
-  util['screenResolution'] = screenResolution;
 }
 
 module.exports = getConfig;

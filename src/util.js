@@ -40,7 +40,7 @@ if (platform === 'darwin') {
 }
 
 module.exports = {
-  'browserArgs': ['--enable-unsafe-webgpu', '--enable-dawn-features=disable_robustness', '--enable-features=WebAssemblySimd,WebAssemblyThreads', '--start-maximized'],
+  'browserArgs': ['--enable-unsafe-webgpu', '--enable-features=WebAssemblySimd,WebAssemblyThreads', '--start-maximized'],
   'hostname': os.hostname(),
   'parameters': parameters,
   'platform': platform,

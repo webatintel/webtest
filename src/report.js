@@ -3,6 +3,7 @@
 const fs = require('fs');
 const nodemailer = require('nodemailer');
 const path = require('path');
+const { spawnSync } = require('child_process');
 const util = require('./util.js');
 
 async function sendMail(to, subject, html) {
@@ -113,7 +114,11 @@ async function report(results) {
   await fs.writeFileSync(path.join(util.resultsDir, `${util.timestamp}.html`), html);
   if ('performance' in results) {
     results['performance'].pop();
-    await fs.writeFileSync(path.join(util.resultsDir, `${util.timestamp.substring(0, 8)}.json`), JSON.stringify(results['performance']));
+    let file = path.join(util.resultsDir, `${util.timestamp.substring(0, 8)}.json`);
+    await fs.writeFileSync(file, JSON.stringify(results['performance']));
+    if ('upload' in util.args) {
+      spawnSync('scp', [file, `wp@wp-27.sh.intel.com:/workspace/project/work/tfjs/data/${util['gpuDeviceId']}/`]);
+    }
   }
 
   if ('email' in util.args) {

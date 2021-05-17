@@ -19,7 +19,7 @@ async function runUnit() {
     }
     process.chdir(path.join(tfjsDir, 'tfjs-backend-webgpu'));
     process.env['CHROME_BIN'] = util.browserPath;
-    let cmd = spawnSync('cmd', ['/c', `yarn test > ${logFile}`], {env: process.env, stdio: [process.stdin, process.stdout, process.stderr]});
+    spawnSync('cmd', ['/c', `yarn test > ${logFile}`], {env: process.env, stdio: [process.stdin, process.stdout, process.stderr]});
     var lines = fs.readFileSync(logFile, 'utf-8').split('\n').filter(Boolean);
     for (let line of lines) {
       if (line.includes('FAILED') || line.includes('Executed')) {

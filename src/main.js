@@ -52,6 +52,10 @@ util.args = require('yargs')
     describe: 'timestamp format, day or second',
     default: 'second',
   })
+  .option('upload', {
+    type: 'boolean',
+    describe: 'upload result to server',
+  })
   .option('url', {
     type: 'string',
     describe: 'url to test against',
@@ -103,10 +107,7 @@ async function main() {
   }
 
   util.timestamp = getTimestamp(util.args['timestamp']);
-
-  if (!util.dryrun) {
-    await config();
-  }
+  await config();
 
   let targets = [];
   if ('target' in util.args) {

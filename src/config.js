@@ -57,6 +57,7 @@ async function getConfig() {
  */
 async function getExtraConfig() {
   if (util.dryrun) {
+    util['gpuDeviceId'] = 'ffff';
     return;
   }
   const browser = await chromium.launchPersistentContext(util.userDataDir, {

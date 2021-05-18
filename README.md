@@ -16,5 +16,5 @@ This is an automation test framework for TFJS end2end tests based on [Playwright
 * [Node.js](https://nodejs.org/en/)
 
 ## Usage
-* npm install
+* yarn
 * node src/main.js // Use --help for more options

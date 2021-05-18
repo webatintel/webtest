@@ -3,7 +3,7 @@
 const fs = require('fs');
 const nodemailer = require('nodemailer');
 const path = require('path');
-const { spawnSync } = require('child_process');
+const { spawnSync, execSync } = require('child_process');
 const util = require('./util.js');
 
 async function sendMail(to, subject, html) {
@@ -105,7 +105,11 @@ async function report(results) {
   }
 
   let configTable = '<table><tr><th>Category</th><th>Info</th></tr>';
-  for (let category of ['hostname', 'platform', 'url', 'browserPath', 'browserArgs', 'cpuName', 'gpuName', 'powerPlan', 'gpuDeviceId', 'gpuDriverVersion', 'screenResolution', 'chromeVersion', 'chromeRevision', 'wasmMultithread', 'wasmSIMD']) {
+  try {
+    util['serverDate'] = execSync('ssh wp@wp-27.sh.intel.com cd /workspace/project/tfjswebgpu/tfjs && git log -1 --date=format:"%Y%m%d" --format="%cd"').toString();
+  } catch (err) {
+  }
+  for (let category of ['hostname', 'platform', 'url', 'browserPath', 'browserArgs', 'cpuName', 'gpuName', 'powerPlan', 'gpuDeviceId', 'gpuDriverVersion', 'screenResolution', 'chromeVersion', 'chromeRevision', 'wasmMultithread', 'wasmSIMD', 'serverDate']) {
     configTable += `<tr><td>${category}</td><td>${util[category]}</td></tr>`;
   }
   configTable += '</table>'

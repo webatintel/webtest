@@ -75,7 +75,11 @@ async function report(results) {
         }
         let result = targetResults[resultIndex];
         let webgpuValue = result[metricIndex + 1];
-        resultsTable += `<tr><td>${result[0]}</td><td>${webgpuValue}</td>`;
+        let style = neutralStyle;
+        if (target == 'conformance' && webgpuValue == 'false') {
+          style = badStyle;
+        }
+        resultsTable += `<tr><td>${result[0]}</td><td ${style}>${webgpuValue}</td>`;
         for (let i = 1; i < util.targetBackends[target].length; i++) {
           let otherValue = result[i * metricsLength + metricIndex + 1];
           resultsTable += `<td>${otherValue}</td>`;

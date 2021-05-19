@@ -1,40 +1,44 @@
 [
   {
     "benchmark": "AutoML Image",
-    "backend": ["webgpu"]
+    "backend": ["wasm", "webgl", "webgpu"]
+  },
+  {
+    "benchmark": "blazeface",
+    "backend": ["wasm", "webgl", "webgpu"]
   },
   {
     "benchmark": "bodypix",
     "architecture": ["MobileNetV1", "ResNet50"],
     "inputSize": [0.25, 0.5, 0.75],
     "inputType": ["image", "tensor"],
-    "backend": ["webgpu"]
+    "backend": ["wasm", "webgl", "webgpu"]
   },
   {
     "benchmark": "face_detector",
-    "backend": ["webgpu"]
+    "backend": ["wasm", "webgl", "webgpu"]
   },
   {
     "benchmark": "hand_skeleton",
-    "backend": ["webgpu"]
+    "backend": ["wasm", "webgl", "webgpu"]
   },
   {
     "benchmark": "mesh_128",
-    "backend": ["webgpu"]
+    "backend": ["wasm", "webgl", "webgpu"]
   },
   {
     "benchmark": "mobilenet_v2",
-    "backend": ["webgpu"]
+    "backend": ["wasm", "webgl", "webgpu"]
   },
   {
     "benchmark": "posenet",
     "architecture": ["MobileNetV1", "ResNet50"],
     "inputSize": [256, 512],
     "inputType": ["image", "tensor", "imageBitmap"],
-    "backend": ["webgpu"]
+    "backend": ["wasm", "webgl", "webgpu"]
   },
   {
     "benchmark": "speech-commands",
-    "backend": ["webgpu"]
+    "backend": ["wasm", "webgl", "webgpu"]
   }
 ]

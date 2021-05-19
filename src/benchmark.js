@@ -34,8 +34,8 @@ async function runBenchmark(target) {
 
   // get benchmarks
   let benchmarks = [];
-  let targetJson = path.join(path.resolve(__dirname), `${target}.json`);
-  let targetBenchmarks = JSON.parse(fs.readFileSync(targetJson));
+  let benchmarkJson = path.join(path.resolve(__dirname), 'benchmark.json');
+  let targetBenchmarks = JSON.parse(fs.readFileSync(benchmarkJson));
   let validBenchmarkNames = [];
   if ('benchmark' in util.args) {
     validBenchmarkNames = util.args['benchmark'].split(',');
@@ -52,6 +52,9 @@ async function runBenchmark(target) {
     if ('backend' in util.args) {
       benchmark['backend'] = intersect(benchmark['backend'], util.args['backend'].split(','));
     }
+    if (target == 'conformance') {
+      benchmark['backend'] = intersect(benchmark['backend'], 'webgpu');
+    }
     let seqArray = [];
     for (let p of util.parameters) {
       seqArray.push(p in benchmark ? (Array.isArray(benchmark[p]) ? benchmark[p] : [benchmark[p]]) : ['']);
@@ -65,7 +68,7 @@ async function runBenchmark(target) {
   let results = []; // format: testName, warmup_webgpu, average_webgpu, best_webgpu, warmup_webgl, average_webgl, best_webgl, warmup_wasm, average_wasm, best_wasm
   let defaultValue;
   if (target == 'conformance') {
-    defaultValue = 'true';
+    defaultValue = 'false';
   } else if (target == 'performance') {
     defaultValue = -1;
   }

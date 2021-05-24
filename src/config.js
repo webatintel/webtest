@@ -16,6 +16,7 @@ async function getConfig() {
     // Trim the brand name, e.g. Ryzen 7 4700U with Radeon Graphics -> Ryzen 7 4700U
     cpuName = cpuName.split(' ').slice(0, 3).join(' ');
   }
+  let pthreadPoolSize = Math.min(4, Number(cpuData.physicalCores));
 
   // GPU
   const gpuData = await si.graphics();
@@ -46,6 +47,7 @@ async function getConfig() {
   }
 
   util['cpuName'] = cpuName;
+  util['pthreadPoolSize'] = pthreadPoolSize;
   util['gpuName'] = gpuName;
   util['powerPlan'] = powerPlan;
 

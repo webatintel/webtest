@@ -113,7 +113,7 @@ async function report(results) {
     util['serverDate'] = execSync('ssh wp@wp-27.sh.intel.com cd /workspace/project/tfjswebgpu/tfjs && git log -1 --date=format:"%Y%m%d" --format="%cd"').toString();
   } catch (err) {
   }
-  for (let category of ['hostname', 'platform', 'url', 'browserPath', 'browserArgs', 'cpuName', 'gpuName', 'powerPlan', 'gpuDeviceId', 'gpuDriverVersion', 'screenResolution', 'chromeVersion', 'chromeRevision', 'wasmMultithread', 'wasmSIMD', 'serverDate']) {
+  for (let category of ['hostname', 'platform', 'url', 'browserPath', 'browserArgs', 'cpuName', 'pthreadPoolSize', 'gpuName', 'powerPlan', 'gpuDeviceId', 'gpuDriverVersion', 'screenResolution', 'chromeVersion', 'chromeRevision', 'wasmMultithread', 'wasmSIMD', 'serverDate']) {
     configTable += `<tr><td>${category}</td><td>${util[category]}</td></tr>`;
   }
   configTable += '</table>'

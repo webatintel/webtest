@@ -103,7 +103,7 @@ async function getExtraConfig() {
     return 'NA';
   });
 
-  util['gpuDeviceId'] = gpuInfo[0];
+  util['gpuDeviceId'] = gpuInfo[0].replace('0x', '');
   util['gpuDriverVersion'] = gpuInfo[1];
 
   // screen resolution

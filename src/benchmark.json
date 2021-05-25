@@ -19,6 +19,10 @@
     "backend": ["wasm", "webgl", "webgpu"]
   },
   {
+    "benchmark": "hand_detector",
+    "backend": ["wasm", "webgl", "webgpu"]
+  },
+  {
     "benchmark": "hand_skeleton",
     "backend": ["wasm", "webgl", "webgpu"]
   },

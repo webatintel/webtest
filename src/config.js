@@ -58,10 +58,6 @@ async function getConfig() {
  * Get extra config info via Chrome
  */
 async function getExtraConfig() {
-  if (util.dryrun) {
-    util['gpuDeviceId'] = 'ffff';
-    return;
-  }
   const browser = await chromium.launchPersistentContext(util.userDataDir, {
     headless: false,
     executablePath: util.browserPath,
@@ -103,7 +99,7 @@ async function getExtraConfig() {
     return 'NA';
   });
 
-  util['gpuDeviceId'] = gpuInfo[0];
+  util['gpuDeviceId'] = gpuInfo[0].replace('0x','');
   util['gpuDriverVersion'] = gpuInfo[1];
 
   // screen resolution

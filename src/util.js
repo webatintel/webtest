@@ -38,6 +38,10 @@ if (platform === 'darwin') {
 } else if (platform === 'win32') {
   userDataDir = `${process.env.LOCALAPPDATA}/Google/Chrome SxS/User Data`;
 }
+// Use different userDataDir config in case there is another process opened by user.
+// Otherwise, Chrome will reuse the existing process when you run it twice with the same profile.
+// And since there is no new process, Playwright can't connect to it.
+userDataDir = path.join(path.dirname(userDataDir), 'User_Data_for_tfjs_test');
 
 module.exports = {
   'browserArgs': ['--enable-unsafe-webgpu', '--enable-features=WebAssemblySimd,WebAssemblyThreads', '--start-maximized'],

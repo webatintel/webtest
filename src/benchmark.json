@@ -35,8 +35,8 @@
     "backend": ["wasm", "webgl", "webgpu"]
   },
   {
-    "benchmark": "posenet",
-    "architecture": ["MobileNetV1", "ResNet50"],
+    "benchmark": "pose-detection",
+    "architecture": ["BlazePose-lite", "BlazePose-full", "BlazePose-heavy", "MoveNet-lightning", "MoveNet-thunder", "PoseNet-MobileNetV1", "PoseNet-ResNet50"],
     "inputSize": [256, 512],
     "inputType": ["image", "tensor", "imageBitmap"],
     "backend": ["wasm", "webgl", "webgpu"]

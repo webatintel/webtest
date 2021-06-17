@@ -122,10 +122,11 @@ async function report(results) {
   await fs.writeFileSync(path.join(util.resultsDir, `${util.timestamp}.html`), html);
   if ('performance' in results) {
     results['performance'].pop();
-    let file = path.join(util.resultsDir, `${util.timestamp.substring(0, 8)}.json`);
+    let fileName = `${util.timestamp.substring(0, 8)}.json`;
+    let file = path.join(util.resultsDir, fileName);
     await fs.writeFileSync(file, JSON.stringify(results['performance']));
     if ('upload' in util.args) {
-      let result = spawnSync('scp', [file, `wp@wp-27.sh.intel.com:/workspace/project/work/tfjs/data/${util['gpuDeviceId']}/`]);
+      let result = spawnSync('scp', [file, `wp@wp-27.sh.intel.com:/workspace/project/work/tfjs/data/${util['gpuDeviceId']}/${fileName}`]);
       if (result.status !== 0) {
         console.log('[ERROR] Failed to upload report');
       } else {

@@ -29,6 +29,28 @@ function intersect(a, b) {
   return a.filter(v => b.includes(v));
 }
 
+async function startContext() {
+  if (!util.dryrun) {
+    let context = await chromium.launchPersistentContext(util.userDataDir, {
+      headless: false,
+      executablePath: util['browserPath'],
+      viewport: null,
+      ignoreHTTPSErrors: true,
+      args: util['browserArgs'],
+    });
+    let page = await context.newPage();
+    return [context, page];
+  } else {
+    return [undefined, undefined];
+  }
+}
+
+async function closeContext(context) {
+  if (!util.dryrun) {
+    await context.close();
+  }
+}
+
 async function runBenchmark(target) {
   let startTime = new Date();
 
@@ -76,15 +98,8 @@ async function runBenchmark(target) {
   let metricsLength = metrics.length;
   let context;
   let page;
-  if (!util.dryrun) {
-    context = await chromium.launchPersistentContext(util.userDataDir, {
-      headless: false,
-      executablePath: util['browserPath'],
-      viewport: null,
-      ignoreHTTPSErrors: true,
-      args: util['browserArgs'],
-    });
-    page = await context.newPage();
+  if (!('new-context' in util.args)) {
+    [context, page] = await startContext();
   }
 
   let task = '';
@@ -107,6 +122,9 @@ async function runBenchmark(target) {
   }
   let needWasmStatus = true;
   for (let i = 0; i < benchmarksLen; i++) {
+    if ('new-context' in util.args) {
+      [context, page] = await startContext();
+    }
     // prepare result placeholder
     let benchmark = benchmarks[i];
     let benchmarkName = benchmark.slice(0, -1).join('-');
@@ -165,10 +183,14 @@ async function runBenchmark(target) {
       }
     }
     console.log(`[${i + 1}/${benchmarksLen}] ${benchmark}: ${results[results.length - 1]}`);
+
+    if ('new-context' in util.args) {
+      await closeContext(context);
+    }
   }
 
-  if (!util.dryrun) {
-    await context.close();
+  if (!('new-context' in util.args)) {
+    await closeContext(context);
   }
 
   results.push(getDuration(startTime, new Date()))

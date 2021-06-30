@@ -6,8 +6,9 @@ const config = require('./config.js');
 const report = require('./report.js')
 const runUnit = require('./unit.js');
 const util = require('./util.js');
+const yargs = require('yargs');
 
-util.args = require('yargs')
+util.args = yargs
   .usage('node $0 [args]')
   .option('backend', {
     type: 'string',
@@ -23,7 +24,7 @@ util.args = require('yargs')
   })
   .option('browser-args', {
     type: 'string',
-    describe: 'extra args for browser splitted by comma',
+    describe: 'extra browser args splitted by comma',
   })
   .option('dryrun', {
     type: 'boolean',
@@ -34,13 +35,17 @@ util.args = require('yargs')
     type: 'string',
     describe: 'email to',
   })
+  .option('new-context', {
+    type: 'boolean',
+    describe: 'start a new context for each test',
+  })
   .option('repeat', {
     type: 'number',
     describe: 'repeat times',
     default: 1,
   })
   .option('run-times', {
-    type: 'integer',
+    type: 'number',
     describe: 'run times',
   })
   .option('target', {
@@ -65,14 +70,16 @@ util.args = require('yargs')
     describe: 'url to test against',
   })
   .option('warmup-times', {
-    type: 'integer',
+    type: 'number',
     describe: 'warmup times',
   })
   .example([
     ['node $0 --email <email>', '# send report to <email>'],
     ['node $0 --browser-args=--no-sandbox,--enable-zero-copy'],
+    ['node $0 --target performance --benchmark mobilenet_v2 --warmup-times 0 --run-times 1 --backend wasm,webgl --new-context'],
   ])
-  .help()
+  .help('h')
+  .wrap(120)
   .argv;
 
 function padZero(str) {

@@ -21,6 +21,10 @@ util.args = require('yargs')
     type: 'string',
     describe: 'browser path',
   })
+  .option('browser-args', {
+    type: 'string',
+    describe: 'extra args for browser splitted by comma',
+  })
   .option('dryrun', {
     type: 'boolean',
     describe: 'dryrun the test',
@@ -65,7 +69,8 @@ util.args = require('yargs')
     describe: 'warmup times',
   })
   .example([
-    ['node $0 --email <email>', 'send report to <email>'],
+    ['node $0 --email <email>', '# send report to <email>'],
+    ['node $0 --browser-args=--no-sandbox,--enable-zero-copy'],
   ])
   .help()
   .argv;
@@ -95,6 +100,10 @@ async function main() {
     browserPath = `${process.env.LOCALAPPDATA}/Google/Chrome SxS/Application/chrome.exe`;
   }
   util.browserPath = browserPath;
+
+  if ('browser-args' in util.args) {
+    util.browserArgs = util.browserArgs.concat(util.args['browser-args'].split(','));
+  }
 
   if ('dryrun' in util.args) {
     util.dryrun = true;

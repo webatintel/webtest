@@ -32,6 +32,18 @@ async function sendMail(to, subject, html) {
   return Promise.resolve();
 }
 
+function getSortedHash(inputHash){
+  var resultHash = {};
+
+  var keys = Object.keys(inputHash);
+  keys.sort(function(a, b) {
+    return inputHash[a][0] - inputHash[b][0];
+  }).reverse().forEach(function(k) {
+    resultHash[k] = inputHash[k];
+  });
+  return resultHash;
+}
+
 async function report(results) {
   const goodStyle = 'style=color:green';
   const badStyle = 'style=color:red';
@@ -44,6 +56,7 @@ async function report(results) {
 	  th {background-color: #0071c5; color: #ffffff; font-weight: normal;} \
     </style>';
 
+  // main performance and conformance tables
   for (let target of ['performance', 'conformance']) {
     if (!(target in results)) {
       continue;
@@ -99,6 +112,7 @@ async function report(results) {
     }
   }
 
+  // unit table
   if ('unit' in results) {
     let targetResults = results['unit'];
     let resultsTable = `<table><tr><th>Unit</th></tr>`;
@@ -108,6 +122,7 @@ async function report(results) {
     html += resultsTable;
   }
 
+  // config table
   let configTable = '<table><tr><th>Category</th><th>Info</th></tr>';
   if ('upload' in util.args) {
     util['serverDate'] = execSync('ssh wp@wp-27.sh.intel.com cd /workspace/project/tfjswebgpu/tfjs && git log -1 --date=format:"%Y%m%d" --format="%cd"').toString();
@@ -116,8 +131,69 @@ async function report(results) {
   for (let category of ['hostname', 'platform', 'url', 'browserPath', 'browserArgs', 'cpuName', 'pthreadPoolSize', 'gpuName', 'powerPlan', 'gpuDeviceId', 'gpuDriverVersion', 'screenResolution', 'chromeVersion', 'chromeRevision', 'wasmMultithread', 'wasmSIMD', 'serverDate']) {
     configTable += `<tr><td>${category}</td><td>${util[category]}</td></tr>`;
   }
-  configTable += '</table>'
+  configTable += '</table><br>'
   html += configTable;
+
+  // performance breakdown table
+  let target = 'performance';
+  if (target in results) {
+    let targetResults = results[target];
+    let backendLength = util.targetBackends[target].length;
+    let metricsLength = util.targetMetrics[target].length;
+    let unit = ' (ms)';
+    let style = neutralStyle;
+    let breakdownTable = `<table><tr><th>benchmark</th><th>op</th><th>webgpu${unit}</th>`;
+    for (let i = 1; i < util.targetBackends[target].length; i++) {
+      let backend = util.targetBackends[target][i];
+      breakdownTable += `<th>${backend}${unit}</th>`;
+      breakdownTable += `<th>webgpu vs ${backend} (%)</th>`;
+    }
+    breakdownTable += '</tr>';
+
+    for (let resultIndex = 0; resultIndex < targetResults.length; resultIndex++) {
+      // stop until duration
+      if (resultIndex == targetResults.length - 1) {
+        break;
+      }
+      let result = targetResults[resultIndex];
+      let op_time = result[backendLength * metricsLength + 1];
+      let TOP = 5;
+      let count = 0;
+      let benchmarkNameDisplayed = false;
+
+      for (let op in getSortedHash(op_time)) {
+        let time = op_time[op];
+        let webgpuValue = time[0];
+        let benchmarkName;
+        if (benchmarkNameDisplayed) {
+          benchmarkName = '';
+        } else {
+          benchmarkName = result[0];
+          benchmarkNameDisplayed = true;
+        }
+
+        breakdownTable += `<tr><td>${benchmarkName}</td><td>${op}</td><td ${style}>${webgpuValue}</td>`;
+        for (let i = 1; i < util.targetBackends[target].length; i++) {
+          let backend = util.targetBackends[target][i];
+          let otherValue = time[util.targetBackends[target].indexOf(backend)];
+          breakdownTable += `<td>${otherValue}</td>`;
+          let style = (webgpuValue == 0 || otherValue == 0 ? neutralStyle : (webgpuValue < otherValue ? goodStyle : badStyle));
+          let percent = 'NA';
+          if (otherValue !== 0 && webgpuValue !== 0) {
+            percent = parseFloat(otherValue / webgpuValue * 100).toFixed(2);
+          }
+          breakdownTable += `<td ${style}>${percent}%</td>`;
+        }
+        breakdownTable += '</tr>';
+        count += 1;
+        if (count == TOP) {
+          break;
+        }
+      }
+    }
+    breakdownTable += '</table><br>';
+    html += breakdownTable;
+  }
 
   await fs.writeFileSync(path.join(util.resultsDir, `${util.timestamp}.html`), html);
   if ('performance' in results) {

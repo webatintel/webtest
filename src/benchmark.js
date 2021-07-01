@@ -85,19 +85,21 @@ async function runBenchmark(target) {
   }
 
   // run benchmarks
-  let benchmarksLen = benchmarks.length;
+  let benchmarksLength = benchmarks.length;
   let previousBenchmarkName = '';
-  let results = []; // format: testName, warmup_webgpu, average_webgpu, best_webgpu, warmup_webgl, average_webgl, best_webgl, warmup_wasm, average_wasm, best_wasm
+  let results = []; // format: testName, warmup_webgpu, average_webgpu, best_webgpu, warmup_webgl, average_webgl, best_webgl, warmup_wasm, average_wasm, best_wasm, {op: {webgpu, webgl, wasm}}
   let defaultValue;
   if (target == 'conformance') {
     defaultValue = 'false';
   } else if (target == 'performance') {
     defaultValue = -1;
   }
+  let backendsLength = util.targetBackends[target].length;
   let metrics = util.targetMetrics[target];
   let metricsLength = metrics.length;
   let context;
   let page;
+
   if (!('new-context' in util.args)) {
     [context, page] = await startContext();
   }
@@ -121,25 +123,45 @@ async function runBenchmark(target) {
     runTimes = 50;
   }
   let needWasmStatus = true;
-  for (let i = 0; i < benchmarksLen; i++) {
+  for (let i = 0; i < benchmarksLength; i++) {
     if ('new-context' in util.args) {
       [context, page] = await startContext();
     }
-    // prepare result placeholder
+
     let benchmark = benchmarks[i];
     let benchmarkName = benchmark.slice(0, -1).join('-');
+    let backend = benchmark[benchmark.length - 1];
+    let backendIndex = util.targetBackends[target].indexOf(backend);
+
+    // prepare result placeholder
     if (benchmarkName != previousBenchmarkName) {
-      results.push([benchmarkName].concat(Array(util.targetBackends[target].length * metricsLength).fill(defaultValue)));
+      let placeholder = [benchmarkName].concat(Array(backendsLength * metricsLength).fill(defaultValue));
+      if (target == 'performance') {
+        placeholder = placeholder.concat({});
+      }
+      results.push(placeholder);
       previousBenchmarkName = benchmarkName;
     }
+    let result = results[results.length - 1];
 
     if (util.dryrun) {
-      for (let i = 1; i < results[results.length - 1].length; i++) {
+      let metricIndex = 0;
+      while (metricIndex < metricsLength) {
         if (target == 'conformance') {
-          results[results.length - 1][i] = 'true';
+          result[metricIndex + 1] = 'true';
         } else if (target == 'performance') {
-          results[results.length - 1][i] = i;
+          let tmpIndex = backendIndex * metricsLength + metricIndex;
+          result[tmpIndex + 1] = tmpIndex + 1;
+          let op_time = result[backendsLength * metricsLength + 1];
+          for (let i = 0; i < 3; i++) {
+            let op = `op${i}`;
+            if (!(op in op_time)) {
+              op_time[op] = Array(backendsLength).fill(defaultValue);
+            }
+            op_time[op][backendIndex] = i * backendsLength + backendIndex + 1;
+          }
         }
+        metricIndex += 1;
       }
     } else {
       // get url
@@ -150,11 +172,10 @@ async function runBenchmark(target) {
         }
       }
 
-      // get result
+      // get value
       await page.goto(url);
       let metricIndex = 0;
       let typeIndex = 1;
-      let backend = benchmark[benchmark.length - 1];
       while (metricIndex < metricsLength) {
         let selector = '#timings > tbody > tr:nth-child(' + typeIndex + ')';
         try {
@@ -164,14 +185,33 @@ async function runBenchmark(target) {
         }
         const type = await page.$eval(selector + ' > td:nth-child(1)', el => el.textContent);
         if (type.includes(metrics[metricIndex])) {
-          let result = await page.$eval(selector + ' > td:nth-child(2)', el => el.textContent);
+          let value = await page.$eval(selector + ' > td:nth-child(2)', el => el.textContent);
           if (target == 'performance') {
-            result = parseFloat(result.replace(' ms', ''));
+            value = parseFloat(value.replace(' ms', ''));
           }
-          results[results.length - 1][util.targetBackends[target].indexOf(backend) * metricsLength + metricIndex + 1] = result;
+          results[results.length - 1][backendIndex * metricsLength + metricIndex + 1] = value;
           metricIndex += 1;
         }
         typeIndex += 1;
+      }
+
+      // get breakdown data
+      if (target == 'performance') {
+        try {
+          await page.waitForSelector('#kernels > tbody > tr:nth-child(1)', { timeout: util.timeout });
+          let row = 1;
+          while (true) {
+            let op = await page.$eval('#kernels > tbody > tr:nth-child(' + row + ') > td:nth-child(1) > span', el => el.title);
+            let time = await page.$eval('#kernels > tbody > tr:nth-child(' + row + ') > td:nth-child(2)', el => el.textContent);
+            let op_time = results[results.length - 1][backendsLength * metricsLength + 1];
+            if (!(op in op_time)) {
+              op_time[op] = Array(backendsLength).fill(defaultValue);
+            }
+            op_time[op][backendIndex] = time;
+            row += 1;
+          }
+        } catch (err) {
+        }
       }
 
       if (needWasmStatus && target == 'performance' && backend == 'wasm') {
@@ -182,7 +222,9 @@ async function runBenchmark(target) {
         needWasmStatus = false;
       }
     }
-    console.log(`[${i + 1}/${benchmarksLen}] ${benchmark}: ${results[results.length - 1]}`);
+
+    console.log(`[${i + 1}/${benchmarksLength}] ${benchmark}`);
+    console.log(result);
 
     if ('new-context' in util.args) {
       await closeContext(context);

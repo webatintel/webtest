@@ -78,7 +78,7 @@ util.args = yargs
     ['node $0 --browser-args=--no-sandbox,--enable-zero-copy'],
     ['node $0 --target performance --benchmark mobilenet_v2 --warmup-times 0 --run-times 1 --backend wasm,webgl --new-context'],
   ])
-  .help('h')
+  .help()
   .wrap(120)
   .argv;
 

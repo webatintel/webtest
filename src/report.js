@@ -97,11 +97,11 @@ async function report(results) {
           let otherValue = result[i * metricsLength + metricIndex + 1];
           resultsTable += `<td>${otherValue}</td>`;
           if (target == 'performance') {
-            let style = (webgpuValue == 0 || otherValue == 0 ? neutralStyle : (webgpuValue < otherValue ? goodStyle : badStyle));
             let percent = 'NA';
             if (otherValue !== 0 && webgpuValue !== 0) {
               percent = parseFloat(otherValue / webgpuValue * 100).toFixed(2);
             }
+            let style = (webgpuValue == 0 || otherValue == 0 ? neutralStyle : (percent > 100 ? goodStyle : badStyle));
             resultsTable += `<td ${style}>${percent}%</td>`;
           }
         }
@@ -177,11 +177,11 @@ async function report(results) {
           let backend = util.targetBackends[target][i];
           let otherValue = time[util.targetBackends[target].indexOf(backend)];
           breakdownTable += `<td>${otherValue}</td>`;
-          let style = (webgpuValue == 0 || otherValue == 0 ? neutralStyle : (webgpuValue < otherValue ? goodStyle : badStyle));
           let percent = 'NA';
           if (otherValue !== 0 && webgpuValue !== 0) {
             percent = parseFloat(otherValue / webgpuValue * 100).toFixed(2);
           }
+          let style = (webgpuValue == 0 || otherValue == 0 ? neutralStyle : (percent > 100 ? goodStyle : badStyle));
           breakdownTable += `<td ${style}>${percent}%</td>`;
         }
         breakdownTable += '</tr>';

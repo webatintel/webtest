@@ -93,7 +93,7 @@ async function getExtraConfig() {
     let driverVersion = '';
     for (let i = 0; i < table.rows.length; i++) {
       if (table.rows[i].cells[0].innerText === 'GPU0') {
-        let match = table.rows[i].cells[1].innerText.match('DEVICE=(.*), SUBSYS');
+        let match = table.rows[i].cells[1].innerText.match('DEVICE=0x([A-Za-z0-9]{4})');
         deviceId = match[1];
       } else if (table.rows[i].cells[0].innerText === 'Driver version') {
         driverVersion = table.rows[i].cells[1].innerText;
@@ -103,7 +103,7 @@ async function getExtraConfig() {
     return 'NA';
   });
 
-  util['gpuDeviceId'] = gpuInfo[0].replace('0x', '');
+  util['gpuDeviceId'] = gpuInfo[0];
   util['gpuDriverVersion'] = gpuInfo[1];
 
   // screen resolution

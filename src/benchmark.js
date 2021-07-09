@@ -196,7 +196,7 @@ async function runBenchmark(target) {
       }
 
       // get breakdown data
-      if (target == 'performance') {
+      if (target == 'performance' && !('disable-breakdown' in util.args)) {
         try {
           await page.waitForSelector('#kernels > tbody > tr:nth-child(1)', { timeout: util.timeout });
           let row = 1;

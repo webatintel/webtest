@@ -26,6 +26,10 @@ util.args = yargs
     type: 'string',
     describe: 'extra browser args splitted by comma',
   })
+  .option('disable-breakdown', {
+    type: 'boolean',
+    describe: 'disable breakdown',
+  })
   .option('dryrun', {
     type: 'boolean',
     describe: 'dryrun the test',

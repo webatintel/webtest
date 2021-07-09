@@ -136,7 +136,7 @@ async function report(results) {
 
   // performance breakdown table
   let target = 'performance';
-  if (target in results) {
+  if (target in results && !('disable-breakdown' in util.args)) {
     let targetResults = results[target];
     let backendLength = util.targetBackends[target].length;
     let metricsLength = util.targetMetrics[target].length;
